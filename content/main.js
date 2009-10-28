@@ -11,11 +11,11 @@ var tblatex_on_toolbarbutton_clicked = function () {};
       node2.parentNode.appendChild(node1);
   }
   
-  function get_cwd() {
+  /*function get_cwd() {
     return Components.classes["@mozilla.org/file/directory_service;1"].
       getService(Components.interfaces.nsIProperties).
       get("CurWorkD", Components.interfaces.nsIFile).path;
-  }
+  }*/
 
 
   /* splits #text [ some text $\LaTeX$ some text ] into three separates text
@@ -63,12 +63,10 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     temp_file.append("tblatex.tex");
     temp_file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
     dump("Using "+temp_file.path+" as the temporary file\n");
-    let cwd = get_cwd();
-    dump("Current directory is "+cwd+"\n");
     let temp_file_noext = temp_file.leafName.substr(0, temp_file.leafName.lastIndexOf("."));
 
     let data =
-      "\\documentclass{article}\n"+
+      "\\documentclass[12pt]{article}\n"+
       "\\pagestyle{empty}\n"+
       "\\begin{document}\n"+
       "\\begin{center}\n"+
@@ -95,30 +93,27 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     converter.close(); // this closes foStream
 
 
-    let latex_process = Components.classes["@mozilla.org/process/util;1"]
-      .createInstance(Components.interfaces.nsIProcess);
+    let latex_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     latex_process.init(latex_bin);
-    latex_process.run(true, [temp_file.path], 1);
+    latex_process.run(true, ["-output-directory", temp_dir, temp_file.path], 3);
 
     let dvi_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    dvi_file.initWithPath(cwd);
+    dvi_file.initWithPath(temp_dir);
     dvi_file.append(temp_file_noext+".dvi");
 
-    let dvips_process = Components.classes["@mozilla.org/process/util;1"]
-      .createInstance(Components.interfaces.nsIProcess);
-    dvips_process.init(dvips_bin);
-    dvips_process.run(true, [dvi_file.path], 1);
-
     let ps_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    ps_file.initWithPath(cwd);
+    ps_file.initWithPath(temp_dir);
     ps_file.append(temp_file_noext+".ps");
 
+    let dvips_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+    dvips_process.init(dvips_bin);
+    dvips_process.run(true, ["-o", ps_file.path, dvi_file.path], 3);
+
     let png_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    png_file.initWithPath(cwd);
+    png_file.initWithPath(temp_dir);
     png_file.append(temp_file_noext+".png");
 
-    let convert_process = Components.classes["@mozilla.org/process/util;1"]
-      .createInstance(Components.interfaces.nsIProcess);
+    let convert_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     convert_process.init(convert_bin);
     convert_process.run(true, [dvi_file.path, "-trim", png_file.path], 3);
 
@@ -133,6 +128,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
       let [st, url] = run_latex(elt.nodeValue);
       if (st) {
         let img = editor.createElementWithDefaults("img");
+        img.setAttribute("alt", "LaTeX expression: "+elt.nodeValue);
         img.setAttribute("src", url);
         elt.parentNode.insertBefore(img, elt);
         elt.parentNode.removeChild(elt);
