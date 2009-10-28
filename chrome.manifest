@@ -1,0 +1,4 @@
+content tblatex content/
+skin tblatex classic/1.0 skin/
+overlay chrome://messenger/content/messengercompose/messengercompose.xul chrome://tblatex/content/overlay.xul
+overlay chrome://global/content/customizeToolbar.xul chrome://tblatex/content/overlay.xul

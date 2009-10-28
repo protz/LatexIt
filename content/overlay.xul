@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="chrome://tblatex/skin/overlay.css" type="text/css" ?>
+<overlay id="tblatex-messenger-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript" src="chrome://tblatex/content/main.js" />
+  <toolbarpalette id="MsgComposeToolbarPalette">
+    <toolbarbutton id="tblatex-button-1"
+      class="toolbarbutton-1"
+      label="Latex It!"
+      oncommand="tblatex_on_toolbarbutton_clicked(event);"
+      tooltiptext="Turn every $$ into a LaTeX image"
+      />
+  </toolbarpalette>
+</overlay>
