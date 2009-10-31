@@ -4,6 +4,10 @@ var tblatex_on_toolbarbutton_clicked = function () {};
   if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xul")
     return;
 
+  let prefs = Components.classes["@mozilla.org/preferences-service;1"]
+    .getService(Components.interfaces.nsIPrefService)
+    .getBranch("tblatex.");
+
   function insertAfter(node1, node2) {
     if (node2.nextSibling)
       node2.parentNode.insertBefore(node1, node2.nextSibling);
@@ -49,11 +53,23 @@ var tblatex_on_toolbarbutton_clicked = function () {};
 
     dump("Generating LaTeX expression "+latex_expr+"\n");
     let latex_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    latex_bin.initWithPath("/usr/bin/latex");
+    latex_bin.initWithPath(prefs.getCharPref("latex_path"));
+    if (!latex_bin.exists()) {
+      log += "Wrong path for latex bin. Please set the right paths in the options dialog first.";
+      return [false, "", log];
+    }
     let dvips_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    dvips_bin.initWithPath("/usr/bin/dvips");
+    dvips_bin.initWithPath(prefs.getCharPref("dvips_path"));
+    if (!dvips_bin.exists()) {
+      log += "Wrong path for dvips bin. Please set the right paths in the options dialog first.";
+      return [false, "", log];
+    }
     let convert_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    convert_bin.initWithPath("/usr/bin/convert");
+    convert_bin.initWithPath(prefs.getCharPref("convert_path"));
+    if (!convert_bin.exists()) {
+      log += "Wrong path for convert bin. Please set the right paths in the options dialog first.";
+      return [false, "", log];
+    }
 
     let temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
       getService(Components.interfaces.nsIProperties).
@@ -67,14 +83,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     dump("Using "+temp_file.path+" as the temporary file\n");
     let temp_file_noext = temp_file.leafName.substr(0, temp_file.leafName.lastIndexOf("."));
 
-    let data =
-      "\\documentclass{article}\n"+
-      "\\pagestyle{empty}\n"+
-      "\\begin{document}\n"+
-      "\\begin{center}\n\\LARGE"+
-      latex_expr+
-      "\n\\end{center}\n"+
-      "\\end{document}\n";
+    let data = prefs.getCharPref("template").replace("__REPLACEME__", latex_expr);
 
     // file is nsIFile, data is a string
     let foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
