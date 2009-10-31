@@ -45,6 +45,8 @@ var tblatex_on_toolbarbutton_clicked = function () {};
   }
 
   function run_latex(latex_expr) {
+    let log = "*** Found expression "+latex_expr+"\n";
+
     dump("Generating LaTeX expression "+latex_expr+"\n");
     let latex_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     latex_bin.initWithPath("/usr/bin/latex");
@@ -66,12 +68,12 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let temp_file_noext = temp_file.leafName.substr(0, temp_file.leafName.lastIndexOf("."));
 
     let data =
-      "\\documentclass[12pt]{article}\n"+
+      "\\documentclass{article}\n"+
       "\\pagestyle{empty}\n"+
       "\\begin{document}\n"+
-      "\\begin{center}\n"+
+      "\\begin{center}\n\\LARGE"+
       latex_expr+
-      "\\end{center}\n"+
+      "\n\\end{center}\n"+
       "\\end{document}\n";
 
     // file is nsIFile, data is a string
@@ -95,11 +97,18 @@ var tblatex_on_toolbarbutton_clicked = function () {};
 
     let latex_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     latex_process.init(latex_bin);
-    latex_process.run(true, ["-output-directory", temp_dir, temp_file.path], 3);
+    latex_process.run(true, ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path], 3);
+    if (latex_process.exitValue) {
+      log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
+    }
 
     let dvi_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     dvi_file.initWithPath(temp_dir);
     dvi_file.append(temp_file_noext+".dvi");
+    if (!dvi_file.exists()) {
+      log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
+      return [false, "", log];
+    }
 
     let ps_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     ps_file.initWithPath(temp_dir);
@@ -108,6 +117,10 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let dvips_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     dvips_process.init(dvips_bin);
     dvips_process.run(true, ["-o", ps_file.path, dvi_file.path], 3);
+    if (dvips_process.exitValue) {
+      log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
+      return [false, "", log];
+    }
 
     let png_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     png_file.initWithPath(temp_dir);
@@ -116,20 +129,70 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let convert_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     convert_process.init(convert_bin);
     convert_process.run(true, [dvi_file.path, "-trim", png_file.path], 3);
+    if (convert_process.exitValue) {
+      log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
+      return [false, "", log];
+    }
 
-    return [true, "file://"+png_file.path];
+    return [true, "file://"+png_file.path, log];
+  }
+
+  function open_log() {
+    let editor = document.getElementById("content-frame");
+    let edocument = editor.contentDocument;
+    let body = edocument.querySelector("body");
+    let div = edocument.createElement("div");
+    if (body.firstChild)
+      body.insertBefore(div, body.firstChild);
+    else
+      body.appendChild(div);
+    div.setAttribute("id", "tblatex-log");
+    div.setAttribute("style", "border: 1px solid #333; position: relative; width: 500px;"+
+        "-moz-border-radius: 5px; -moz-box-shadow: 2px 2px 6px #888; margin: 1em; padding: .5em;");
+    div.innerHTML = "<a href=\"http://www.xulforum.org/go_code\" "+
+      "style=\"position: absolute; right: 2px; top: 2px;"+
+        "text-decoration: none !important; font-weight: bold; font-family: sans-serif;"+
+        "color: black !important;\">X</a>"+
+      "<span style=\"font-family: sans-serif; font-weight: bold; font-size: large\">"+
+      "LaTeXing $$ expressions...</span><br />";
+    let a = div.querySelector("a");
+    a.addEventListener('click', {
+        handleEvent: function (event) {
+          a.parentNode.parentNode.removeChild(a.parentNode);
+          return false
+        }
+      }, false);
+    let p = edocument.createElement("pre");
+    p.setAttribute("style", "max-height: 500px; overflow: auto;");
+    div.appendChild(p);
+    let f = function (text) { let n = edocument.createTextNode(text); p.appendChild(n); };
+    return f;
+  }
+
+  function close_log() {
+    let editor = document.getElementById("content-frame");
+    let edocument = editor.contentDocument;
+    let div = edocument.getElementById("tblatex-log");
+    if (div)
+      div.parentNode.removeChild(div);
   }
 
   /* replaces each latex text node with the corresponding generated image */
   function replace_latex_nodes(nodes) {
+    close_log();
+    let write_log = open_log();
     let editor = GetCurrentEditor();
+    if (!nodes.length)
+      write_log("No LaTeX $$ expressions found\n");
     for (let i = 0; i < nodes.length; ++i) {
       let elt = nodes[i];
-      let [st, url] = run_latex(elt.nodeValue);
+      let [st, url, log] = run_latex(elt.nodeValue);
+      write_log(log);
       if (st) {
         let img = editor.createElementWithDefaults("img");
-        img.setAttribute("alt", "LaTeX expression: "+elt.nodeValue);
+        img.setAttribute("alt", elt.nodeValue);
         img.setAttribute("src", url);
+        img.setAttribute("style", "vertical-align: middle");
         elt.parentNode.insertBefore(img, elt);
         elt.parentNode.removeChild(elt);
       }
@@ -147,9 +210,13 @@ var tblatex_on_toolbarbutton_clicked = function () {};
 
     let editor = GetCurrentEditor();
     editor.beginTransaction();
-    let body = editor_elt.contentDocument.querySelector("body");
-    let latex_nodes = split_text_nodes(body);
-    replace_latex_nodes(latex_nodes);
+    try {
+      let body = editor_elt.contentDocument.querySelector("body");
+      let latex_nodes = split_text_nodes(body);
+      replace_latex_nodes(latex_nodes);
+    } catch (e if false) {
+      Application.console.log("TBLatex error: "+e);
+    }
     editor.endTransaction();
   }
 

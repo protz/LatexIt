@@ -1,7 +1,11 @@
 <?xml version="1.0" ?>
 <?xml-stylesheet href="chrome://tblatex/skin/overlay.css" type="text/css" ?>
-<overlay id="tblatex-messenger-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="tblatex-messenger-overlay"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/x-javascript" src="chrome://tblatex/content/main.js" />
+  <!--<script type="application/x-javascript" src="chrome://messenger/content/jquery.js" />
+  <script type="application/x-javascript" src="chrome://messenger/content/jquery-ui.js" />-->
   <toolbarpalette id="MsgComposeToolbarPalette">
     <toolbarbutton id="tblatex-button-1"
       class="toolbarbutton-1"
