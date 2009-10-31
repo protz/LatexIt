@@ -6,7 +6,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>tblatex@xulforum.org</em:id>
-    <em:version>0.1pre.091028</em:version>
+    <em:version>0.1__REPLACEME__</em:version>
     
     <!-- Target Application this theme can install into, 
         with minimum and maximum supported versions. --> 
@@ -19,10 +19,9 @@
     </em:targetApplication>
     
     <!-- Front End MetaData -->
-    <em:name>Latex It!</em:name>
+    <em:name>Mail Latex</em:name>
     <em:description>Automatically change $\LaTeX$ into images in your HTML
       mails.</em:description>
-    <em:optionsURL>chrome://tblatex/content/options.xul</em:optionsURL>
 
     <em:creator>Jonathan Protzenko</em:creator>
   </Description>      

@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>Latex It! help</title>
+    <meta http-equiv="Content-Type" content="text/HTML; charset=utf-8" />
+  </head>
+  <body>
+    <h1>
+      More about templates
+    </h1>
+    <p>
+      The default template gives a natural, polished look to the LaTeX
+      expressions. It uses the "palatino" font, and includes several AMS
+      packages to make it easier to insert symbols and specific features.
+    </p>
+    <pre>
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsopn}
+\usepackage{mathrsfs}
+\usepackage{palatino}
+\usepackage{mathpazo}
+\pagestyle{empty}
+\begin{document}
+\begin{center}
+\LARGE
+__REPLACEME__ %this is where your LaTeX expression goes
+\end{center}
+\end{document}
+    </pre>
+    <p>
+    The <tt>__REPLACEME__</tt> word will be replaced with the LaTeX expression
+    you specified. Therefore, it is important you put it in the right place.
+    </p>
+    <p>
+    We are not using PDFTex but a PS-based production chain, so please keep that
+    in mind when using extra packages (i.e. color).
+    </p>
+  </body>
+</html>
