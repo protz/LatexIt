@@ -55,19 +55,19 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let latex_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     latex_bin.initWithPath(prefs.getCharPref("latex_path"));
     if (!latex_bin.exists()) {
-      log += "Wrong path for latex bin. Please set the right paths in the options dialog first.";
+      log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
       return [false, "", log];
     }
     let dvips_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     dvips_bin.initWithPath(prefs.getCharPref("dvips_path"));
     if (!dvips_bin.exists()) {
-      log += "Wrong path for dvips bin. Please set the right paths in the options dialog first.";
+      log += "Wrong path for dvips bin. Please set the right path in the options dialog first.\n";
       return [false, "", log];
     }
     let convert_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
     convert_bin.initWithPath(prefs.getCharPref("convert_path"));
     if (!convert_bin.exists()) {
-      log += "Wrong path for convert bin. Please set the right paths in the options dialog first.";
+      log += "Wrong path for convert bin. Please set the right path in the options dialog first.\n";
       return [false, "", log];
     }
 

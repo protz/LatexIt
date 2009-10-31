@@ -11,7 +11,7 @@
     </h1>
     <p>
       The default template gives a natural, polished look to the LaTeX
-      expressions. It uses the "palatino" font, and includes several AMS
+      expressions. It uses the "Palatino" font, and includes several AMS
       packages to make it easier to insert symbols and specific features. The
       <tt>mathrsfs</tt> package allows one to use <tt>\mathscr{}</tt> to
       produce English capitals.
@@ -30,6 +30,15 @@ __REPLACEME__ %this is where your LaTeX expression goes
 \end{center}
 \end{document}
     </pre>
+    <p>
+    To insert LaTeX, we first convert <tt>dvi</tt> to <tt>png</tt> through
+    <tt>ps</tt>, then we crop the resulting full-page PNG file to a small image
+    that only contains the formula. The <tt>\pagestyle{empty}</tt> line removes
+    extra output such as page numbers, so that we just need to crop the blank
+    areas of the big image to get a small image with only the formula. Without
+    this line, there is a page number at the bottom, so cropping doesn't work
+    and a huge image is inserted, which is <b>not</b> what we want!
+    </p>
     <p>
     The <tt>__REPLACEME__</tt> word will be replaced with the LaTeX expression
     you specified. Therefore, it is important you put it in the right place.
