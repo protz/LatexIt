@@ -23,7 +23,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
   function split_text_nodes(node) {
     let latex_nodes = [];
     if (node.nodeType == node.TEXT_NODE) {
-      let re = /\$[^\$]+\$/g;
+      let re = /\$\$[^\$]+\$\$|\$[^\$]+\$/g;
       let matches = node.nodeValue.match(re);
       if (matches) {
         for (let i = matches.length - 1; i >= 0; --i) {
@@ -150,11 +150,11 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     div.setAttribute("style", "border: 1px solid #333; position: relative; width: 500px;"+
         "-moz-border-radius: 5px; -moz-box-shadow: 2px 2px 6px #888; margin: 1em; padding: .5em;");
     div.innerHTML = "<a href=\"http://www.xulforum.org/go_code\" "+
-      "style=\"position: absolute; right: 2px; top: 2px;"+
+      "style=\"position: absolute; right: 4px; top: 4px; cursor: pointer !important;"+
         "text-decoration: none !important; font-weight: bold; font-family: sans-serif;"+
         "color: black !important;\">X</a>"+
       "<span style=\"font-family: sans-serif; font-weight: bold; font-size: large\">"+
-      "LaTeXing $$ expressions...</span><br />";
+      "TBLaTeX run report...</span><br />";
     let a = div.querySelector("a");
     a.addEventListener('click', {
         handleEvent: function (event) {
@@ -179,7 +179,6 @@ var tblatex_on_toolbarbutton_clicked = function () {};
 
   /* replaces each latex text node with the corresponding generated image */
   function replace_latex_nodes(nodes) {
-    close_log();
     let write_log = open_log();
     let editor = GetCurrentEditor();
     if (!nodes.length)
@@ -211,10 +210,11 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let editor = GetCurrentEditor();
     editor.beginTransaction();
     try {
+      close_log();
       let body = editor_elt.contentDocument.querySelector("body");
       let latex_nodes = split_text_nodes(body);
       replace_latex_nodes(latex_nodes);
-    } catch (e if false) {
+    } catch (e if false) { /*XXX do not catch errors to get full backtraces in dev cycles */
       Application.console.log("TBLatex error: "+e);
     }
     editor.endTransaction();
