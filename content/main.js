@@ -125,7 +125,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
 
     let dvips_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     dvips_process.init(dvips_bin);
-    dvips_process.run(true, ["-o", ps_file.path, dvi_file.path], 3);
+    dvips_process.run(true, ["-o", ps_file.path, "-E", dvi_file.path], 4);
     if (dvips_process.exitValue) {
       log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
       return [false, "", log];
@@ -136,8 +136,9 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     png_file.append(temp_file_noext+".png");
 
     let convert_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+    let dpi = prefs.getIntPref("dpi");
     convert_process.init(convert_bin);
-    convert_process.run(true, [dvi_file.path, "-trim", png_file.path], 3);
+    convert_process.run(true, ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path], 7);
     if (convert_process.exitValue) {
       log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
       return [false, "", log];

@@ -11,6 +11,7 @@
       <preference id="latex_path" name="tblatex.latex_path" type="string" />
       <preference id="dvips_path" name="tblatex.dvips_path" type="string" />
       <preference id="convert_path" name="tblatex.convert_path" type="string" />
+      <preference id="dpi" name="tblatex.dpi" type="int" />
     </preferences>
    
     <grid align="center">
@@ -34,6 +35,11 @@
           <label control="convert_textbox" value="Path to convert executable" />
           <textbox preference="convert_path" id="convert_textbox" readonly="true" />
           <button label="Change" oncommand="pick_file(document.getElementsByTagName('preference')[2], 'convert');" />
+        </row>
+        <row>
+          <label control="dpi_textbox" value="Resolution (dpi)" />
+          <textbox preference="dpi" id="dpi_textbox" />
+          <spacer />
         </row>
       </rows>
     </grid>
