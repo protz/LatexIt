@@ -10,34 +10,25 @@
       More about templates
     </h1>
     <p>
-      The default template gives a natural, polished look to the LaTeX
-      expressions. It uses the "Palatino" font, and includes several AMS
-      packages to make it easier to insert symbols and specific features. The
-      <tt>mathrsfs</tt> package allows one to use <tt>\mathscr{}</tt> to
-      produce English capitals.
+      The default template gives LaTeX expressions the usual, familiar look of
+      CM fonts. It is as minimal as possible to ensure that it works on every
+      platform.
     </p>
     <pre>
 \documentclass{article}
-\usepackage{amsmath,amssymb,amsopn}
-\usepackage{mathrsfs}
-\usepackage{palatino}
-\usepackage{mathpazo}
+\usepackage[utf8x]{inputenc}
 \pagestyle{empty}
 \begin{document}
 \begin{center}
-\LARGE
 __REPLACEME__ %this is where your LaTeX expression goes
 \end{center}
 \end{document}
     </pre>
-    <p>
+   <p>
     To insert LaTeX, we first convert <tt>dvi</tt> to <tt>png</tt> through
     <tt>ps</tt>, then we crop the resulting full-page PNG file to a small image
     that only contains the formula. The <tt>\pagestyle{empty}</tt> line removes
-    extra output such as page numbers, so that we just need to crop the blank
-    areas of the big image to get a small image with only the formula. Without
-    this line, there is a page number at the bottom, so cropping doesn't work
-    and a huge image is inserted, which is <b>not</b> what we want!
+    extra output such as page numbers, which is why cropping works.
     </p>
     <p>
     The <tt>__REPLACEME__</tt> word will be replaced with the LaTeX expression
@@ -45,7 +36,33 @@ __REPLACEME__ %this is where your LaTeX expression goes
     </p>
     <p>
     We are not using PDFTex but a PS-based production chain, so please keep that
-    in mind when using extra packages (i.e. color).
+    in mind when using extra packages (i.e. color). 
     </p>
+    <p>
+    The file is written as UTF-8 (always) so please do not remove the
+    <tt>utf8x</tt> encoding.
+    </p>
+    <h1>Alternative templates</h1>
+    <p>
+      This one uses the "Palatino" font, and includes several AMS
+      packages to make it easier to insert symbols and specific features. The
+      <tt>mathrsfs</tt> package allows one to use <tt>\mathscr{}</tt> to
+      produce English capitals.
+    </p>
+    <pre>
+\documentclass{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath,amssymb,amsopn}
+\usepackage{mathrsfs}
+\usepackage{palatino}
+\usepackage{mathpazo}
+\pagestyle{empty}
+\begin{document}
+\begin{center}
+__REPLACEME__ %this is where your LaTeX expression goes
+\end{center}
+\end{document}
+    </pre>
+ 
   </body>
 </html>

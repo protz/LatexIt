@@ -12,6 +12,7 @@
       <preference id="dvips_path" name="tblatex.dvips_path" type="string" />
       <preference id="convert_path" name="tblatex.convert_path" type="string" />
       <preference id="dpi" name="tblatex.dpi" type="int" />
+      <preference id="log" name="tblatex.log" type="bool" />
     </preferences>
    
     <grid align="center">
@@ -39,6 +40,11 @@
         <row>
           <label control="dpi_textbox" value="Resolution (dpi)" />
           <textbox preference="dpi" id="dpi_textbox" />
+          <spacer />
+        </row>
+        <row>
+          <label control="log_checkbox" value="Generate a log report" />
+          <checkbox preference="log" id="log_checkbox" />
           <spacer />
         </row>
       </rows>

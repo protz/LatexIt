@@ -4,6 +4,8 @@ var tblatex_on_toolbarbutton_clicked = function () {};
   if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xul")
     return;
 
+  Application.console.log("TBLatex initialized");
+
   let prefs = Components.classes["@mozilla.org/preferences-service;1"]
     .getService(Components.interfaces.nsIPrefService)
     .getBranch("tblatex.");
@@ -48,24 +50,31 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     return latex_nodes;
   }
 
+  /* This *has* to be global. If image a.png is inserted, then modified, then
+   * inserted in another mail, the OLD a.png is displayed because of some cache
+   * which I haven't found a way to invalidate yet. */
+  let g_suffix = 1;
+
   function run_latex(latex_expr) {
     let log = "*** Found expression "+latex_expr+"\n";
+    let init_file = function(path) {
+      let f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+      f.initWithPath(path);
+      return f;
+    }
 
     dump("Generating LaTeX expression "+latex_expr+"\n");
-    let latex_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    latex_bin.initWithPath(prefs.getCharPref("latex_path"));
+    let latex_bin = init_file(prefs.getCharPref("latex_path"));
     if (!latex_bin.exists()) {
       log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
       return [false, "", log];
     }
-    let dvips_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    dvips_bin.initWithPath(prefs.getCharPref("dvips_path"));
+    let dvips_bin = init_file(prefs.getCharPref("dvips_path"));
     if (!dvips_bin.exists()) {
       log += "Wrong path for dvips bin. Please set the right path in the options dialog first.\n";
       return [false, "", log];
     }
-    let convert_bin = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    convert_bin.initWithPath(prefs.getCharPref("convert_path"));
+    let convert_bin = init_file(prefs.getCharPref("convert_path"));
     if (!convert_bin.exists()) {
       log += "Wrong path for convert bin. Please set the right path in the options dialog first.\n";
       return [false, "", log];
@@ -74,14 +83,17 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
       getService(Components.interfaces.nsIProperties).
       get("TmpD", Components.interfaces.nsIFile).path;
-    dump("Using "+temp_dir+" as the temporary directory\n");
-    let temp_file = Components.classes["@mozilla.org/file/directory_service;1"].
-      getService(Components.interfaces.nsIProperties).
-      get("TmpD", Components.interfaces.nsIFile);
-    temp_file.append("tblatex.tex");
-    temp_file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
-    dump("Using "+temp_file.path+" as the temporary file\n");
-    let temp_file_noext = temp_file.leafName.substr(0, temp_file.leafName.lastIndexOf("."));
+    let temp_file = init_file(temp_dir);
+    temp_file.append("tblatex-"+g_suffix+".png");
+    while (temp_file.exists()) {
+      g_suffix++;
+      temp_file = init_file(temp_dir);
+      temp_file.append("tblatex-"+g_suffix+".png");
+    }
+    let temp_file_noext = "tblatex-"+g_suffix;
+    temp_file = init_file(temp_dir);
+    temp_file.append("tblatex-"+g_suffix+".tex");
+    if (temp_file.exists()) temp_file.remove(false);
 
     let data = prefs.getCharPref("template").replace("__REPLACEME__", latex_expr);
 
@@ -107,47 +119,58 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let latex_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     latex_process.init(latex_bin);
     latex_process.run(true, ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path], 3);
+    temp_file.remove(false);
     if (latex_process.exitValue) {
       log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
     }
 
-    let dvi_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    dvi_file.initWithPath(temp_dir);
+    let dvi_file = init_file(temp_dir);
     dvi_file.append(temp_file_noext+".dvi");
     if (!dvi_file.exists()) {
       log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
       return [false, "", log];
     }
 
-    let ps_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    ps_file.initWithPath(temp_dir);
+    let ps_file = init_file(temp_dir);
     ps_file.append(temp_file_noext+".ps");
 
     let dvips_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     dvips_process.init(dvips_bin);
     dvips_process.run(true, ["-o", ps_file.path, "-E", dvi_file.path], 4);
+    dvi_file.remove(false);
     if (dvips_process.exitValue) {
       log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
       return [false, "", log];
     }
 
-    let png_file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-    png_file.initWithPath(temp_dir);
+    let png_file = init_file(temp_dir);
     png_file.append(temp_file_noext+".png");
 
     let convert_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     let dpi = prefs.getIntPref("dpi");
     convert_process.init(convert_bin);
     convert_process.run(true, ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path], 7);
+    ps_file.remove(false);
     if (convert_process.exitValue) {
       log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
       return [false, "", log];
     }
 
+    ["log", "aux"].forEach(function (ext) {
+        let file = init_file(temp_dir);
+        file.append(temp_file_noext+"."+ext);
+        file.remove(false);
+      });
+
+    Application.console.log(png_file.path);
     return [true, "file://"+png_file.path, log];
   }
 
   function open_log() {
+    let want_log = prefs.getBoolPref("log");
+    if (!want_log)
+      return (function () {});
+
     let editor = document.getElementById("content-frame");
     let edocument = editor.contentDocument;
     let body = edocument.querySelector("body");
@@ -196,6 +219,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     for (let i = 0; i < nodes.length; ++i) {
       let elt = nodes[i];
       let [st, url, log] = run_latex(elt.nodeValue);
+      Application.console.log(url);
       write_log(log);
       if (st) {
         let img = editor.createElementWithDefaults("img");
@@ -224,7 +248,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
       let body = editor_elt.contentDocument.querySelector("body");
       let latex_nodes = split_text_nodes(body);
       replace_latex_nodes(latex_nodes);
-    } catch (e if false) { /*XXX do not catch errors to get full backtraces in dev cycles */
+    } catch (e /*if false*/) { /*XXX do not catch errors to get full backtraces in dev cycles */
       Application.console.log("TBLatex error: "+e);
     }
     editor.endTransaction();
