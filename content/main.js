@@ -4,8 +4,6 @@ var tblatex_on_toolbarbutton_clicked = function () {};
   if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xul")
     return;
 
-  Application.console.log("TBLatex initialized");
-
   let prefs = Components.classes["@mozilla.org/preferences-service;1"]
     .getService(Components.interfaces.nsIPrefService)
     .getBranch("tblatex.");
@@ -16,13 +14,6 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     else
       node2.parentNode.appendChild(node1);
   }
-  
-  /*function get_cwd() {
-    return Components.classes["@mozilla.org/file/directory_service;1"].
-      getService(Components.interfaces.nsIProperties).
-      get("CurWorkD", Components.interfaces.nsIFile).path;
-  }*/
-
 
   /* splits #text [ some text $\LaTeX$ some text ] into three separates text
    * nodes and returns the list of latex nodes */
@@ -51,8 +42,8 @@ var tblatex_on_toolbarbutton_clicked = function () {};
   }
 
   /* This *has* to be global. If image a.png is inserted, then modified, then
-   * inserted in another mail, the OLD a.png is displayed because of some cache
-   * which I haven't found a way to invalidate yet. */
+   * inserted again in the same mail, the OLD a.png is displayed because of some
+   * cache which I haven't found a way to invalidate yet. */
   let g_suffix = 1;
 
   function run_latex(latex_expr) {
@@ -61,6 +52,11 @@ var tblatex_on_toolbarbutton_clicked = function () {};
       let f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
       f.initWithPath(path);
       return f;
+    }
+    let init_process = function(path) {
+      let process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+      process.init(path);
+      return process;
     }
 
     dump("Generating LaTeX expression "+latex_expr+"\n");
@@ -116,8 +112,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     converter.close(); // this closes foStream
 
 
-    let latex_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
-    latex_process.init(latex_bin);
+    let latex_process = init_process(latex_bin);
     latex_process.run(true, ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path], 3);
     temp_file.remove(false);
     if (latex_process.exitValue) {
@@ -134,8 +129,7 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let ps_file = init_file(temp_dir);
     ps_file.append(temp_file_noext+".ps");
 
-    let dvips_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
-    dvips_process.init(dvips_bin);
+    let dvips_process = init_process(dvips_bin);
     dvips_process.run(true, ["-o", ps_file.path, "-E", dvi_file.path], 4);
     dvi_file.remove(false);
     if (dvips_process.exitValue) {
@@ -146,9 +140,8 @@ var tblatex_on_toolbarbutton_clicked = function () {};
     let png_file = init_file(temp_dir);
     png_file.append(temp_file_noext+".png");
 
-    let convert_process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+    let convert_process = init_process(convert_bin);
     let dpi = prefs.getIntPref("dpi");
-    convert_process.init(convert_bin);
     convert_process.run(true, ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path], 7);
     ps_file.remove(false);
     if (convert_process.exitValue) {
