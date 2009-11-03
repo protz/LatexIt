@@ -10,12 +10,15 @@
       label="Latex It!"
       tooltiptext="Turn every $$ into a LaTeX image"
       type="menu-button"
+      oncommand="tblatex.on_latexit(event);"
       >
       <menupopup>
-        <menuitem label="Undo" id="tblatex-button-undo" />
-        <menuitem label="Undo All" id="tblatex-button-undo_all" />
+        <menuitem label="Undo" id="tblatex-button-undo" oncommand="tblatex.on_undo(event);" />
+        <menuitem label="Undo All" id="tblatex-button-undo_all" oncommand="tblatex.on_undo_all(event);" />
         <menuseparator />
-        <menuitem label="Insert complex LaTeX" id="tblatex-button-insert_complex" />
+        <menuitem label="Insert complex LaTeX" id="tblatex-button-insert_complex" oncommand="tblatex.on_insert_complex(event);" />
+        <menuseparator />
+        <menuitem label="Options" id="tblatex-button-open_options" oncommand="tblatex.on_open_options(event);" />
       </menupopup>
     </toolbarbutton>
   </toolbarpalette>

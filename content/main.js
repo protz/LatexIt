@@ -1,3 +1,11 @@
+var tblatex = {
+  on_latexit: null,
+  on_undo: null,
+  on_undo_all: null,
+  on_insert_complex: null,
+  on_open_options: null
+};
+
 (function () {
   if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xul")
     return;
@@ -58,6 +66,7 @@
 
   function run_latex(latex_expr) {
     var log = "";
+    window.dump("\n*** Generating LaTeX expression "+latex_expr+"\n");
     if (g_image_cache[latex_expr])
       return [true, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
 
@@ -72,7 +81,6 @@
       return process;
     }
 
-    dump("Generating LaTeX expression "+latex_expr+"\n");
     var latex_bin = init_file(prefs.getCharPref("latex_path"));
     if (!latex_bin.exists()) {
       log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
@@ -214,6 +222,16 @@
       div.parentNode.removeChild(div);
   }
 
+  function replace(string, pattern, replacement) {
+    var i = string.indexOf(pattern);
+    if (i < 0)
+      return;
+    var l = pattern.length;
+    var p1 = string.substring(0, i);
+    var p2 = string.substring(i+l);
+    return p1 + replacement + p2;
+  }
+
   /* replaces each latex text node with the corresponding generated image */
   function replace_latex_nodes(nodes) {
     var template = prefs.getCharPref("template");
@@ -221,10 +239,10 @@
     var editor = GetCurrentEditor();
     if (!nodes.length)
       write_log("No LaTeX $$ expressions found\n");
-    for (var i = 0; i < nodes.length; ++i) {
+    function f(i) { /* Need a real scope here and there is no let-binding available in Thunderbird 2 */
       var elt = nodes[i];
       write_log("*** Found expression "+elt.nodeValue+"\n");
-      var latex_expr = template.replace("__REPLACEME__", elt.nodeValue);
+      var latex_expr = replace(template, "__REPLACEME__", elt.nodeValue);
       var [st, url, log] = run_latex(latex_expr);
       write_log(log);
       if (st) {
@@ -235,16 +253,16 @@
         elt.parentNode.insertBefore(img, elt);
         elt.parentNode.removeChild(elt);
         push_undo_func(function () {
-          editor.beginTransaction();
           img.parentNode.insertBefore(elt, img);
           img.parentNode.removeChild(img);
-          editor.endTransaction();
         });
       }
     }
+    for (var i = 0; i < nodes.length; ++i)
+      f(i);
   }
 
-  function on_toolbarbutton_clicked(event) {
+  tblatex.on_latexit = function (event) {
     /* safety checks */
     if (event.button == 2) return;
     var editor_elt = document.getElementById("content-frame");
@@ -264,31 +282,37 @@
       Application.console.log("TBLatex error: "+e);
     }
     editor.endTransaction();
-  }
+  };
 
-  function undo(event) {
+  tblatex.on_undo = function (event) {
+    var editor = GetCurrentEditor();
+    editor.beginTransaction();
     try {
       if (g_undo_func)
         g_undo_func();
     } catch (e) {
       Application.console.log("TBLatex Error (while undoing) "+e);
     }
+    editor.endTransaction();
     event.stopPropagation();
-  }
+  };
 
-  function undo_all(event) {
+  tblatex.on_undo_all = function (event) {
+    var editor = GetCurrentEditor();
+    editor.beginTransaction();
     try {
       while (g_undo_func)
         g_undo_func();
     } catch (e) {
       Application.console.log("TBLatex Error (while undoing) "+e);
     }
+    editor.endTransaction();
     event.stopPropagation();
-  }
+  };
 
   var g_complex_input = null;
 
-  function open_insert_dialog(event) {
+  tblatex.on_insert_complex = function (event) {
     var editor = GetCurrentEditor();
     var f = function (latex_expr) {
       g_complex_input = latex_expr;
@@ -306,10 +330,7 @@
           img.setAttribute("style", "vertical-align: middle");
           editor.insertElementAtSelection(img, true);
           push_undo_func(function () {
-            editor.beginTransaction();
             img.parentNode.removeChild(img);
-            close_log();
-            editor.endTransaction();
           });
         }
       } catch (e) {
@@ -320,14 +341,16 @@
     var template = g_complex_input || prefs.getCharPref("template");
     window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome", f, template);
     event.stopPropagation();
-  }
+  };
 
-  tblatex_on_toolbarbutton_clicked = on_toolbarbutton_clicked;
+  tblatex.on_open_options = function (event) {
+    window.openDialog("chrome://tblatex/content/options.xul", "", "");
+    event.stopPropagation();
+  };
+
   window.addEventListener("load",
     function () {
-      document.getElementById("tblatex-button-1").addEventListener("command", on_toolbarbutton_clicked, false);
-      document.getElementById("tblatex-button-undo").addEventListener("command", undo, false);
-      document.getElementById("tblatex-button-undo_all").addEventListener("command", undo_all, false);
-      document.getElementById("tblatex-button-insert_complex").addEventListener("command", open_insert_dialog, false);
+      var tb = document.getElementById("composeToolbar2");
+      tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
     }, false);
 })()
