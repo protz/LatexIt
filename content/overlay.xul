@@ -4,14 +4,19 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/x-javascript" src="chrome://tblatex/content/main.js" />
-  <!--<script type="application/x-javascript" src="chrome://messenger/content/jquery.js" />
-  <script type="application/x-javascript" src="chrome://messenger/content/jquery-ui.js" />-->
   <toolbarpalette id="MsgComposeToolbarPalette">
     <toolbarbutton id="tblatex-button-1"
       class="toolbarbutton-1"
       label="Latex It!"
-      oncommand="tblatex_on_toolbarbutton_clicked(event);"
       tooltiptext="Turn every $$ into a LaTeX image"
-      />
+      type="menu-button"
+      >
+      <menupopup>
+        <menuitem label="Undo" id="tblatex-button-undo" />
+        <menuitem label="Undo All" id="tblatex-button-undo_all" />
+        <menuseparator />
+        <menuitem label="Insert complex LaTeX" id="tblatex-button-insert_complex" />
+      </menupopup>
+    </toolbarbutton>
   </toolbarpalette>
 </overlay>
