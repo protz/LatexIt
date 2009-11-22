@@ -41,7 +41,7 @@ var tblatex = {
       var re = /\$\$[^\$]+\$\$|\$[^\$]+\$/g;
       var matches = node.nodeValue.match(re);
       if (matches) {
-        for (var i = matches.length - 1; i >= 0; --i) {
+        for (var i = matches.length - 1; i >= 0; --i) (function (i) {
           var match = matches[i];
           var j = node.nodeValue.lastIndexOf(match);
           var k = j + match.length;
@@ -50,11 +50,17 @@ var tblatex = {
           latex_nodes.push(latex_node);
           insertAfter(latex_node, node);
           node.nodeValue = node.nodeValue.substr(0, j);
-        }
+        })(i);
       }
     } else if (node.childNodes && node.childNodes.length) {
-      for (var i = node.childNodes.length - 1; i >= 0; --i)
+      for (var i = node.childNodes.length - 1; i >= 0; --i) {
+        if (i > 0 && node.childNodes[i-1].nodeType == node.childNodes[i-1].TEXT_NODE && node.childNodes[i].nodeValue) {
+          node.childNodes[i-1].nodeValue += node.childNodes[i].nodeValue;
+          node.childNodes[i].nodeValue = "";
+          continue;
+        }
         latex_nodes = latex_nodes.concat(split_text_nodes(node.childNodes[i]));
+      }
     }
     return latex_nodes;
   }
@@ -64,11 +70,12 @@ var tblatex = {
    * cache which I haven't found a way to invalidate yet. */
   var g_suffix = 1;
 
-  function run_latex(latex_expr) {
+  function run_latex(latex_expr, silent) {
     var log = "";
+    var st = 0;
     window.dump("\n*** Generating LaTeX expression "+latex_expr+"\n");
     if (g_image_cache[latex_expr])
-      return [true, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
+      return [0, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
 
     var init_file = function(path) {
       var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
@@ -84,17 +91,17 @@ var tblatex = {
     var latex_bin = init_file(prefs.getCharPref("latex_path"));
     if (!latex_bin.exists()) {
       log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
-      return [false, "", log];
+      return [2, "", log];
     }
     var dvips_bin = init_file(prefs.getCharPref("dvips_path"));
     if (!dvips_bin.exists()) {
       log += "Wrong path for dvips bin. Please set the right path in the options dialog first.\n";
-      return [false, "", log];
+      return [2, "", log];
     }
     var convert_bin = init_file(prefs.getCharPref("convert_path"));
     if (!convert_bin.exists()) {
       log += "Wrong path for convert bin. Please set the right path in the options dialog first.\n";
-      return [false, "", log];
+      return [2, "", log];
     }
 
     var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
@@ -135,14 +142,21 @@ var tblatex = {
     latex_process.run(true, ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path], 3);
     temp_file.remove(false);
     if (latex_process.exitValue) {
+      st = 1;
       log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
     }
+
+    ["log", "aux"].forEach(function (ext) {
+        var file = init_file(temp_dir);
+        file.append(temp_file_noext+"."+ext);
+        file.remove(false);
+      });
 
     var dvi_file = init_file(temp_dir);
     dvi_file.append(temp_file_noext+".dvi");
     if (!dvi_file.exists()) {
       log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
-      return [false, "", log];
+      return [2, "", log];
     }
 
     var ps_file = init_file(temp_dir);
@@ -153,7 +167,7 @@ var tblatex = {
     dvi_file.remove(false);
     if (dvips_process.exitValue) {
       log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
-      return [false, "", log];
+      return [2, "", log];
     }
 
     var png_file = init_file(temp_dir);
@@ -161,21 +175,16 @@ var tblatex = {
 
     var convert_process = init_process(convert_bin);
     var dpi = prefs.getIntPref("dpi");
-    convert_process.run(true, ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path], 7);
+    var args = ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path];
+    convert_process.run(true, args, args.length);
     ps_file.remove(false);
     if (convert_process.exitValue) {
       log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
-      return [false, "", log];
+      return [2, "", log];
     }
     g_image_cache[latex_expr] = png_file.path;
 
-    ["log", "aux"].forEach(function (ext) {
-        var file = init_file(temp_dir);
-        file.append(temp_file_noext+"."+ext);
-        file.remove(false);
-      });
-
-    return [true, "file://"+png_file.path, log];
+    return [st, "file://"+png_file.path, log];
   }
 
   function open_log() {
@@ -233,19 +242,22 @@ var tblatex = {
   }
 
   /* replaces each latex text node with the corresponding generated image */
-  function replace_latex_nodes(nodes) {
+  function replace_latex_nodes(nodes, silent) {
     var template = prefs.getCharPref("template");
-    var write_log = open_log();
+    var write_log_func = null;
+    var write_log = function(str) { if (!write_log_func) write_log_func = open_log(); return write_log_func(str); };
     var editor = GetCurrentEditor();
-    if (!nodes.length)
+    if (!nodes.length && !silent)
       write_log("No LaTeX $$ expressions found\n");
-    function f(i) { /* Need a real scope here and there is no let-binding available in Thunderbird 2 */
+    for (var i = 0; i < nodes.length; ++i) (function (i) { /* Need a real scope here and there is no let-binding available in Thunderbird 2 */
       var elt = nodes[i];
-      write_log("*** Found expression "+elt.nodeValue+"\n");
+      if (!silent)
+        write_log("*** Found expression "+elt.nodeValue+"\n");
       var latex_expr = replace(template, "__REPLACEME__", elt.nodeValue);
-      var [st, url, log] = run_latex(latex_expr);
-      write_log(log);
-      if (st) {
+      var [st, url, log] = run_latex(latex_expr, silent);
+      if (st || !silent)
+        write_log(log);
+      if (st == 0 || st == 1) {
         var img = editor.createElementWithDefaults("img");
         img.setAttribute("alt", elt.nodeValue);
         img.setAttribute("src", url);
@@ -257,12 +269,10 @@ var tblatex = {
           img.parentNode.removeChild(img);
         });
       }
-    }
-    for (var i = 0; i < nodes.length; ++i)
-      f(i);
+    })(i);
   }
 
-  tblatex.on_latexit = function (event) {
+  tblatex.on_latexit = function (event, silent) {
     /* safety checks */
     if (event.button == 2) return;
     var editor_elt = document.getElementById("content-frame");
@@ -277,7 +287,7 @@ var tblatex = {
       close_log();
       var body = editor_elt.contentDocument.getElementsByTagName("body")[0];
       var latex_nodes = split_text_nodes(body);
-      replace_latex_nodes(latex_nodes);
+      replace_latex_nodes(latex_nodes, silent);
     } catch (e /*if false*/) { /*XXX do not catch errors to get full backtraces in dev cycles */
       Application.console.log("TBLatex error: "+e);
     }
@@ -337,7 +347,7 @@ var tblatex = {
         Application.console.log("TBLatex Error (while inserting) "+e);
       }
       editor.endTransaction();
-    }
+    };
     var template = g_complex_input || prefs.getCharPref("template");
     window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome", f, template);
     event.stopPropagation();
@@ -348,6 +358,7 @@ var tblatex = {
     event.stopPropagation();
   };
 
+  /* Is this even remotey useful ? */
   window.addEventListener("load",
     function () {
       var tb = document.getElementById("composeToolbar2");

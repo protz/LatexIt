@@ -49,6 +49,9 @@
         </row>
       </rows>
     </grid>
+    <label style="text-decoration: underline; color: navy; margin-top: 2em;" value="Open the autodetection dialog"
+      onclick="window.openDialog('chrome://tblatex/content/firstrun.html', '',
+        'all,chrome,dialog=no,status,toolbar,width=640,height=480');" />
   </prefpane>
   
   <prefpane id="tblatex-template" label="LaTeX template to use" image="chrome://messenger/skin/preferences/advanced.png">

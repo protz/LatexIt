@@ -4,13 +4,18 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     xmlns:html="http://www.w3.org/1999/xhtml">
   <script type="application/x-javascript" src="chrome://tblatex/content/main.js" />
+  <keyset>
+    <key id="tblatex-run" modifiers="accel shift" key="L"
+      oncommand="tblatex.on_latexit(event, true);"
+      />
+  </keyset>
   <toolbarpalette id="MsgComposeToolbarPalette">
     <toolbarbutton id="tblatex-button-1"
       class="toolbarbutton-1"
       label="Latex It!"
-      tooltiptext="Turn every $$ into a LaTeX image"
+      tooltiptext="Turn every $$ into a LaTeX image (Ctrl/Meta-Shift-L for silent run)"
       type="menu-button"
-      oncommand="tblatex.on_latexit(event);"
+      oncommand="tblatex.on_latexit(event, false);"
       >
       <menupopup>
         <menuitem label="Undo" id="tblatex-button-undo" oncommand="tblatex.on_undo(event);" />
