@@ -1,0 +1,7 @@
+Par ordre de priorité:
+- Faire une option pour un hook avant l'envoi du mail.
+  Sémantique : pas de log et envoi si tt est bon, log et annulation si pas bon
+- Passer dans un thread séparé la génération du LaTeX
+  -> essayer de mettre à jour l'interface lorsqu'on lance LaTeX
+- Essayer de garder latex vivant pour aller plus vite
+- Option chaîne PDF, améliorer l'autodétection

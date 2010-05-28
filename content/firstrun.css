@@ -1,0 +1,17 @@
+body {
+  font-family: "DejaVu Sans Condensed", "Arial Narrow", condensed;
+  margin: 3em;
+}
+
+h1 {
+  border-bottom: 1px solid black;
+}
+
+a {
+  color: #6DC361;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>Configuring Thunderbird LaTeX extension</title>
+    <meta http-equiv="Content-Type" content="text/HTML; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="firstrun.css" />
+    <script type="application/x-javascript">
+      var Cc = Components.classes;
+      var Ci = Components.interfaces;
+      var prefs = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService).getBranch("tblatex.");
+
+      function init_file(path) {
+        var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+        f.initWithPath(path);
+        return f;
+      }
+
+      function search_in_path() {
+        var env = Cc["@mozilla.org/process/environment;1"].createInstance(Ci.nsIEnvironment);
+        var sep = navigator.platform == "Win32" ? ";" : ":";
+        var ext = navigator.platform == "Win32" ? ".exe" : "";
+        var dirs = env.get("PATH").split(sep);
+        var latex_found = false; var dvips_found = false; var convert_found = false;
+        for (var i = 0; i < dirs.length; ++i) (function (i) {
+          var latex_bin = init_file(dirs[i]); latex_bin.append("latex"+ext);
+          if (latex_bin.exists() && !latex_found) {
+            prefs.setCharPref("latex_path", latex_bin.path);
+            latex_found = true;
+          }
+          var dvips_bin = init_file(dirs[i]); dvips_bin.append("dvips"+ext);
+          if (dvips_bin.exists() && !dvips_found) {
+            prefs.setCharPref("dvips_path", dvips_bin.path);
+            dvips_found = true;
+          }
+          var convert_bin = init_file(dirs[i]); convert_bin.append("convert"+ext);
+          if (convert_bin.exists() && !convert_found) {
+            prefs.setCharPref("convert_path", convert_bin.path);
+            convert_found = true;
+          }
+        })(i);
+      }
+
+      function on_load() {
+        if (navigator.platform == "Win32")
+          document.getElementById("div_win32").style.display = "block";
+        search_in_path();
+
+        var latex_path = prefs.getCharPref("latex_path");
+        if (latex_path.length > 0 && init_file(latex_path).exists()) {
+          document.getElementById("latex_path").appendChild(document.createTextNode(latex_path));
+          document.getElementById("latex_icon").src = "accept.png";
+        } else {
+          document.getElementById("latex_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
+          document.getElementById("button_yes").setAttribute("disabled", "disabled");
+        }
+        var dvips_path = prefs.getCharPref("dvips_path");
+        if (dvips_path.length > 0 && init_file(dvips_path).exists()) {
+          document.getElementById("dvips_path").appendChild(document.createTextNode(dvips_path));
+          document.getElementById("dvips_icon").src = "accept.png";
+        } else {
+          document.getElementById("dvips_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
+          document.getElementById("button_yes").setAttribute("disabled", "disabled");
+        }
+        var convert_path = prefs.getCharPref("convert_path");
+        if (convert_path.length > 0 && init_file(convert_path).exists() && convert_path.toLowerCase().indexOf("system32\\convert.exe") < 0) {
+          document.getElementById("convert_path").appendChild(document.createTextNode(convert_path));
+          document.getElementById("convert_icon").src = "accept.png";
+        } else {
+          document.getElementById("convert_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
+          document.getElementById("button_yes").setAttribute("disabled", "disabled");
+          if (convert_path.toLowerCase().indexOf("system32\\convert.exe") >= 0 && navigator.platform == "Win32") {
+            document.getElementById("autodetect_report").innerHTML = "<span>"+
+              "Although we have found a <tt>convert.exe</tt> at <b>"+
+              convert_path+"</b>, we strongly believe this is the Windows "+
+              "<tt>convert</tt> utility, usually located in C:\\WINDOWS\\system32. "+
+              "Please select the right <tt>convert.exe</tt> utility, usually "+
+              "found in C:\\Program Files\\ImageMagick-N-N-N-Q16\\, when taken "+
+              "to the options screen. If we were wrong, please <a href='#'"+
+              "onclick=\"document.getElementById('button_yes').removeAttribute('disabled'); return false;\">"+
+              "click here</a>.</span>";
+          }
+        }
+      }
+
+      function on_yes() {
+        prefs.setIntPref("firstrun", 2);
+        window.close();
+      }
+
+      function on_no() {
+        window.openDialog("chrome://tblatex/content/options.xul");
+        on_yes();
+      }
+    </script>
+  </head>
+  <body onload="on_load();">
+    <h1>Thunderbird LaTeX extension</h1>
+    Congratulations! You have successfully installed the Thunderbird LaTeX
+    extension. Please take a few minutes to check that the settings we have
+    found are correct.
+    <h2>Required software</h2>
+    <p>
+      This extension depends on a regular LaTeX distribution and the ImageMagick
+      software. If you haven't installed them already, here are a few tips. If
+      you are running Linux, both can be easily installed through your
+      distribution's package manager. If running MacOS, <a
+        href="http://www.tug.org/mactex/">MacTeX</a> is probably what you're
+      looking for. If running Windows, <a
+        href="http://www.miktex.org">MiKTeX</a> is known to work. The <a
+        href="http://www.imagemagick.org/download/www/binary-releases.html">ImageMagick
+        website</a> offers binary downloads for MacOS and Windows.
+    </p>
+    <div id="div_win32" style="display: none;">
+      <h2>Attention!</h2>
+      <p>
+      It appears you are running Microsoft Windows. <strong>Please make sure you have
+        installed GhostScript</strong>, as this software is required for
+      <tt>convert</tt> to be able to translate EPS to PNG. A downloadable
+      installer is available <a
+        href="http://sourceforge.net/projects/ghostscript/">here</a>.
+      </p>
+      <p>
+      Other software is available here:
+      <ul>
+        <li><a href="http://www.miktex.org">MiKTeX</a> includes both
+        <tt>latex</tt> and <tt>dvips</tt> executables.</li>
+        <li><a
+          href="http://www.imagemagick.org/download/www/binary-releases.html#windows">ImageMagick</a>
+        includes <tt>convert</tt>.</li>
+      </ul>
+      </p>
+      <h2>Path to <tt>convert.exe</tt></h2>
+      <p>
+      Please also double-check that the <tt>convert.exe</tt> utility found is
+      the one in the ImageMagick install directory, not the one in the
+      <tt>system32</tt> directory. There is a Windows utility that bears the
+      same name, and unless you have checked the "Add ImageMagick install
+      directory to system PATH" option during ImageMagick installation, the
+      wrong utility will be found.
+      </p>
+      <h2>Where is the required software on Windows?</h2>
+      <p>
+      If autodetection failed, <tt>latex.exe</tt> and <tt>dvips.exe</tt> are
+      usually found in the <tt>miktex\bin</tt> folder of your MiKTeX install
+      directory. <tt>convert.exe</tt> is located in the ImageMagick install
+      directory.
+      </p>
+    </div>
+    <h2>Autodetection results</h2>
+    <p>
+      We have found the required utilities to be in the following locations:
+    </p>
+    <ul>
+      <li>LaTeX: <span id="latex_path"></span>&nbsp;<img id="latex_icon" src="exclamation.png" /></li>
+      <li>dvips: <span id="dvips_path"></span>&nbsp;<img id="dvips_icon" src="exclamation.png" /></li>
+      <li>convert: <span id="convert_path"></span>&nbsp;<img id="convert_icon" src="exclamation.png" /></li>
+    </ul>
+    <span id="autodetect_report"></span>
+    <p><strong><u>Are these settings correct?</u></strong></p>
+    <p>
+      <button type="button" onclick="on_yes();" id="button_yes">Yes, don't bother me again</button>
+      <button type="button" onclick="on_no();">No, take me to the options screen</button>
+    </p>
+    <a href="#" onclick="document.location.reload(); return false;">Autodetect again</a>
+    <!--<a href="#" onclick="document.location.reload(); return false;">Reload</a>-->
+  </body>
+</html>
