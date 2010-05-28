@@ -70,6 +70,12 @@ var tblatex = {
    * cache which I haven't found a way to invalidate yet. */
   var g_suffix = 1;
 
+  /* Returns [st, src, log] where :
+   * - st is 0 if everything went ok, 1 if some error was found but the image
+   *   was nonetheless generated, 2 if there was a fatal error
+   * - src is the local path of the image if generated
+   * - log is the log messages generated during the run
+   * */
   function run_latex(latex_expr, silent) {
     var log = "";
     var st = 0;
@@ -184,6 +190,9 @@ var tblatex = {
     }
     g_image_cache[latex_expr] = png_file.path;
 
+    dump("*** Status is "+st+"\n");
+    dump("*** Path is "+png_file.path+"\n");
+    dump("*** Log is "+log+"\n");
     return [st, "file://"+png_file.path, log];
   }
 
@@ -333,7 +342,7 @@ var tblatex = {
         var [st, url, log] = run_latex(latex_expr);
         log = log || "Everything went OK.\n";
         write_log(log);
-        if (st) {
+        if (st == 0 || st == 1) {
           var img = editor.createElementWithDefaults("img");
           img.setAttribute("alt", latex_expr);
           img.setAttribute("src", url);
