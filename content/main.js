@@ -212,7 +212,7 @@ var tblatex = {
     div.setAttribute("id", "tblatex-log");
     div.setAttribute("style", "border: 1px solid #333; position: relative; width: 500px;"+
         "-moz-border-radius: 5px; -moz-box-shadow: 2px 2px 6px #888; margin: 1em; padding: .5em;");
-    div.innerHTML = "<a href=\"http://www.xulforum.org/go_code\" "+
+    div.innerHTML = "<a href=\"#\" "+
       "style=\"position: absolute; right: 4px; top: 4px; cursor: pointer !important;"+
         "text-decoration: none !important; font-weight: bold; font-family: sans-serif;"+
         "color: black !important;\">X</a>"+
@@ -298,7 +298,7 @@ var tblatex = {
       var latex_nodes = split_text_nodes(body);
       replace_latex_nodes(latex_nodes, silent);
     } catch (e /*if false*/) { /*XXX do not catch errors to get full backtraces in dev cycles */
-      Application.console.log("TBLatex error: "+e);
+      Components.utils.reportError("TBLatex error: "+e);
     }
     editor.endTransaction();
   };
@@ -310,7 +310,7 @@ var tblatex = {
       if (g_undo_func)
         g_undo_func();
     } catch (e) {
-      Application.console.log("TBLatex Error (while undoing) "+e);
+      Components.utils.reportError("TBLatex Error (while undoing) "+e);
     }
     editor.endTransaction();
     event.stopPropagation();
@@ -323,7 +323,7 @@ var tblatex = {
       while (g_undo_func)
         g_undo_func();
     } catch (e) {
-      Application.console.log("TBLatex Error (while undoing) "+e);
+      Components.utils.reportError("TBLatex Error (while undoing) "+e);
     }
     editor.endTransaction();
     event.stopPropagation();
@@ -345,6 +345,7 @@ var tblatex = {
         if (st == 0 || st == 1) {
           var img = editor.createElementWithDefaults("img");
           img.setAttribute("alt", latex_expr);
+          img.setAttribute("title", latex_expr);
           img.setAttribute("src", url);
           img.setAttribute("style", "vertical-align: middle");
           editor.insertElementAtSelection(img, true);
@@ -353,7 +354,7 @@ var tblatex = {
           });
         }
       } catch (e) {
-        Application.console.log("TBLatex Error (while inserting) "+e);
+        Components.utils.reportError("TBLatex Error (while inserting) "+e);
       }
       editor.endTransaction();
     };

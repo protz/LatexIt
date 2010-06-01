@@ -49,9 +49,9 @@
         </row>
       </rows>
     </grid>
-    <label style="text-decoration: underline; color: navy; margin-top: 2em;" value="Open the autodetection dialog"
-      onclick="window.openDialog('chrome://tblatex/content/firstrun.html', '',
-        'all,chrome,dialog=no,status,toolbar,width=640,height=480');" />
+    <label style="text-decoration: underline; color: navy; margin-top: 2em;
+      cursor: pointer" value="Open the autodetection dialog"
+      onclick="open_autodetect();" />
   </prefpane>
   
   <prefpane id="tblatex-template" label="LaTeX template to use" image="chrome://messenger/skin/preferences/advanced.png">
@@ -61,7 +61,7 @@
    
     <hbox>
       <label control="template_textbox" value="Template to use to generate LaTeX parts "/>
-      <label style="text-decoration: underline; color: navy;" value="Help ?"
+      <label style="text-decoration: underline; color: navy; cursor: pointer" value="Help ?"
         onclick="window.openDialog('chrome://tblatex/content/help.html', '',
           'all,chrome,dialog=no,status,toolbar,width=640,height=480');" />
     </hbox>

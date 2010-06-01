@@ -42,7 +42,7 @@
       }
 
       function on_load() {
-        if (navigator.platform == "Win32")
+        if (navigator.platform.indexOf("Win") >= 0)
           document.getElementById("div_win32").style.display = "block";
         search_in_path();
 
@@ -81,6 +81,10 @@
               "click here</a>.</span>";
           }
         }
+
+        if (window.arguments && window.arguments[0]) {
+          window.arguments[0](document);
+        }
       }
 
       function on_yes() {
@@ -97,19 +101,25 @@
   <body onload="on_load();">
     <h1>Thunderbird LaTeX extension</h1>
     Congratulations! You have successfully installed the Thunderbird LaTeX
-    extension. Please take a few minutes to check that the settings we have
+    extension. Please take a few seconds to check that the settings we have
     found are correct.
     <h2>Required software</h2>
     <p>
       This extension depends on a regular LaTeX distribution and the ImageMagick
       software. If you haven't installed them already, here are a few tips. If
       you are running Linux, both can be easily installed through your
-      distribution's package manager. If running MacOS, <a
+      distribution's package manager. If running MacOS, <a class="external"
         href="http://www.tug.org/mactex/">MacTeX</a> is probably what you're
-      looking for. If running Windows, <a
+      looking for. If running Windows, <a class="external"
         href="http://www.miktex.org">MiKTeX</a> is known to work. The <a
+        class="external"
         href="http://www.imagemagick.org/download/www/binary-releases.html">ImageMagick
         website</a> offers binary downloads for MacOS and Windows.
+    </p>
+    <p style="color: #8F2E2E">
+      If you choose to install this software now, please make sure you click
+      "autodetect again" at the bottom of the page once you're done with the
+      setup.
     </p>
     <div id="div_win32" style="display: none;">
       <h2>Attention!</h2>
@@ -117,15 +127,15 @@
       It appears you are running Microsoft Windows. <strong>Please make sure you have
         installed GhostScript</strong>, as this software is required for
       <tt>convert</tt> to be able to translate EPS to PNG. A downloadable
-      installer is available <a
+      installer is available <a class="external"
         href="http://sourceforge.net/projects/ghostscript/">here</a>.
       </p>
       <p>
       Other software is available here:
       <ul>
-        <li><a href="http://www.miktex.org">MiKTeX</a> includes both
+        <li><a class="external" href="http://www.miktex.org">MiKTeX</a> includes both
         <tt>latex</tt> and <tt>dvips</tt> executables.</li>
-        <li><a
+        <li><a class="external"
           href="http://www.imagemagick.org/download/www/binary-releases.html#windows">ImageMagick</a>
         includes <tt>convert</tt>.</li>
       </ul>
@@ -138,6 +148,10 @@
       same name, and unless you have checked the "Add ImageMagick install
       directory to system PATH" option during ImageMagick installation, the
       wrong utility will be found.
+      </p>
+      <p style="color: #8F2E2E">
+        Some users have reported that the 64-bit version of Imagemagick has some
+        issues on 64-bit Windows. If unsure, please install the 32-bit version.
       </p>
       <h2>Where is the required software on Windows?</h2>
       <p>
