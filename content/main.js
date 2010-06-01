@@ -217,7 +217,7 @@ var tblatex = {
         "text-decoration: none !important; font-weight: bold; font-family: sans-serif;"+
         "color: black !important;\">X</a>"+
       "<span style=\"font-family: sans-serif; font-weight: bold; font-size: large\">"+
-      "TBLaTeX run report...</span><br />";
+      "LatexIt! run report...</span><br />";
     var a = div.getElementsByTagName("a")[0];
     a.addEventListener('click', {
         handleEvent: function (event) {

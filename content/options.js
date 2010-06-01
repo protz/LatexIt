@@ -7,7 +7,7 @@ function pick_file(pref, title) {
 }
 
 function add_links(aDoc) {
-  if (!Application) //TB 2.x will open this properly in an external browser
+  if (!window.Application) //TB 2.x will open this properly in an external browser
     return;
 
   var links = aDoc.getElementsByClassName("external");
