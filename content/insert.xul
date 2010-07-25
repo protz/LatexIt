@@ -16,5 +16,9 @@
       <description>Edit the default document below and the visible parts will be
       inserted in your email</description>
       <textbox id="tblatex-expr" multiline="true" rows="24" />
+      <hbox>
+        <button label="Load default template" oncommand="on_reset();" />
+        <spacer flex="1" />
+      </hbox>
    </groupbox>
 </dialog>

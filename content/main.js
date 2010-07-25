@@ -77,11 +77,17 @@ var tblatex = {
    * - log is the log messages generated during the run
    * */
   function run_latex(latex_expr, silent) {
+    var debug = prefs.getBoolPref("debug");
     var log = "";
     var st = 0;
-    window.dump("\n*** Generating LaTeX expression "+latex_expr+"\n");
-    if (g_image_cache[latex_expr])
+    if (debug)
+      log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
+
+    if (g_image_cache[latex_expr]) {
+      if (debug)
+        log += "Found a cached image file "+g_image_cache[latex_expr]+", returning\n";
       return [0, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
+    }
 
     var init_file = function(path) {
       var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
@@ -148,9 +154,10 @@ var tblatex = {
     var latex_args = ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path];
     latex_process.run(true, latex_args, latex_args.length);
     temp_file.remove(false);
+    if (debug)
+      log += "I ran "+latex_bin.path+" "+latex_args.join(" ")+"\n";
     if (latex_process.exitValue) {
       st = 1;
-      log += "I ran "+latex_bin.path+" "+latex_args.join(" ")+"\n";
       log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
     }
 
@@ -174,8 +181,9 @@ var tblatex = {
     var dvips_args = ["-o", ps_file.path, "-E", dvi_file.path];
     dvips_process.run(true, dvips_args, dvips_args.length);
     dvi_file.remove(false);
-    if (dvips_process.exitValue) {
+    if (debug)
       log += "I ran "+dvips_bin.path+" "+dvips_args.join(" ")+"\n";
+    if (dvips_process.exitValue) {
       log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
       return [2, "", log];
     }
@@ -188,16 +196,18 @@ var tblatex = {
     var convert_args = ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path];
     convert_process.run(true, convert_args, convert_args.length);
     ps_file.remove(false);
-    if (convert_process.exitValue) {
+    if (debug)
       log += "I ran "+convert_bin.path+" "+convert_args.join(" ")+"\n";
+    if (convert_process.exitValue) {
       log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
       return [2, "", log];
     }
     g_image_cache[latex_expr] = png_file.path;
 
-    dump("*** Status is "+st+"\n");
-    dump("*** Path is "+png_file.path+"\n");
-    dump("*** Log is "+log+"\n");
+    if (debug) {
+      log += ("*** Status is "+st+"\n");
+      log += ("*** Path is "+png_file.path+"\n");
+    }
     return [st, "file://"+png_file.path, log];
   }
 
@@ -257,6 +267,7 @@ var tblatex = {
 
   /* replaces each latex text node with the corresponding generated image */
   function replace_latex_nodes(nodes, silent) {
+    var debug = prefs.getBoolPref("debug");
     var template = prefs.getCharPref("template");
     var write_log_func = null;
     var write_log = function(str) { if (!write_log_func) write_log_func = open_log(); return write_log_func(str); };
@@ -272,6 +283,8 @@ var tblatex = {
       if (st || !silent)
         write_log(log);
       if (st == 0 || st == 1) {
+        if (debug)
+          write_log("--> Replacing node... ");
         var img = editor.createElementWithDefaults("img");
         img.setAttribute("alt", elt.nodeValue);
         img.setAttribute("src", url);
@@ -282,6 +295,11 @@ var tblatex = {
           img.parentNode.insertBefore(elt, img);
           img.parentNode.removeChild(img);
         });
+        if (debug)
+          write_log("done\n");
+      } else {
+        if (debug)
+          write_log("--> Failed, not inserting\n");
       }
     })(i);
   }

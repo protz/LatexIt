@@ -13,6 +13,7 @@
       <preference id="convert_path" name="tblatex.convert_path" type="string" />
       <preference id="dpi" name="tblatex.dpi" type="int" />
       <preference id="log" name="tblatex.log" type="bool" />
+      <preference id="debug" name="tblatex.debug" type="bool" />
     </preferences>
    
     <grid align="center">
@@ -45,6 +46,11 @@
         <row>
           <label control="log_checkbox" value="Generate a log report" />
           <checkbox preference="log" id="log_checkbox" />
+          <spacer />
+        </row>
+        <row>
+          <label control="debug_checkbox" value="Generate debug info" />
+          <checkbox preference="debug" id="debug_checkbox" />
           <spacer />
         </row>
       </rows>
