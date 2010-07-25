@@ -1,7 +1,6 @@
 Par ordre de priorité:
 - Rendre les champs texte éditables pour rentrer manuellement le chemin vers
   LaTeX
-- Faire un bouton "reset" pour l'insertion de LaTeX complexe.
 - Comprendre pourquoi des fois le dialogue des options est pas bon.
 - Faire une option pour un hook avant l'envoi du mail.
   Sémantique : pas de log et envoi si tt est bon, log et annulation si pas bon

@@ -1,7 +1,7 @@
--- v0.5.2 --
+-- v0.6 development series --
 
-Fix issues with the autodetect dialog not opening links in the external browser.
-Fix some nits with "TBLatex run report"
-Cosmetic cleanups
-More warnings about possible installation quirks
-Fix a small bug when inserting an external chunk of LaTeX
+- Add a "load default template" button for the "insert complex latex dialog"
+- Add a "show debug information" option for people who are having trouble
+getting things to work properly
+- Make the paths in the options editable for mac users who cannot navigate to
+the place where the binaries are located

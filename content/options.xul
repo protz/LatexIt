@@ -25,18 +25,18 @@
       <rows>
         <row>
           <label control="latex_textbox" value="Path to latex executable" />
-          <textbox preference="latex_path" id="latex_textbox" readonly="true" />
-          <button label="Change" oncommand="pick_file(document.getElementsByTagName('preference')[0], 'latex');" />
+          <textbox preference="latex_path" id="latex_textbox" />
+          <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[0], 'latex');" />
         </row>
         <row>
           <label control="dvips_textbox" value="Path to dvips executable" />
-          <textbox preference="dvips_path" id="dvips_textbox" readonly="true" />
-          <button label="Change" oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvips');" />
+          <textbox preference="dvips_path" id="dvips_textbox" />
+          <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvips');" />
         </row>
         <row>
           <label control="convert_textbox" value="Path to convert executable" />
-          <textbox preference="convert_path" id="convert_textbox" readonly="true" />
-          <button label="Change" oncommand="pick_file(document.getElementsByTagName('preference')[2], 'convert');" />
+          <textbox preference="convert_path" id="convert_textbox" />
+          <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[2], 'convert');" />
         </row>
         <row>
           <label control="dpi_textbox" value="Resolution (dpi)" />
