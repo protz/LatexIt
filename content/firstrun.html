@@ -9,40 +9,57 @@
       var Cc = Components.classes;
       var Ci = Components.interfaces;
       var prefs = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService).getBranch("tblatex.");
+      var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
 
       function init_file(path) {
         var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-        f.initWithPath(path);
+        try {
+          f.initWithPath(path);
+        } catch (e) {
+          dump("Wrong path! "+path+"\n");
+          return {
+            exists: function () { return false; }
+          };
+        }
         return f;
       }
 
       function search_in_path() {
         var env = Cc["@mozilla.org/process/environment;1"].createInstance(Ci.nsIEnvironment);
-        var sep = navigator.platform == "Win32" ? ";" : ":";
-        var ext = navigator.platform == "Win32" ? ".exe" : "";
+        var sep = isWindows ? ";" : ":";
+        var ext = isWindows ? ".exe" : "";
         var dirs = env.get("PATH").split(sep);
         var latex_found = false; var dvips_found = false; var convert_found = false;
         for (var i = 0; i < dirs.length; ++i) (function (i) {
-          var latex_bin = init_file(dirs[i]); latex_bin.append("latex"+ext);
+          var latex_bin = init_file(dirs[i]);
+          if (latex_bin.exists())
+            latex_bin.append("latex"+ext);
           if (latex_bin.exists() && !latex_found) {
             prefs.setCharPref("latex_path", latex_bin.path);
             latex_found = true;
+            dump("Found latex in "+latex_bin.path+"\n");
           }
-          var dvips_bin = init_file(dirs[i]); dvips_bin.append("dvips"+ext);
+          var dvips_bin = init_file(dirs[i]);
+          if (dvips_bin.exists())
+            dvips_bin.append("dvips"+ext);
           if (dvips_bin.exists() && !dvips_found) {
             prefs.setCharPref("dvips_path", dvips_bin.path);
             dvips_found = true;
+            dump("Found dvips in "+dvips_bin.path+"\n");
           }
-          var convert_bin = init_file(dirs[i]); convert_bin.append("convert"+ext);
+          var convert_bin = init_file(dirs[i]);
+          if (convert_bin.exists())
+            convert_bin.append("convert"+ext);
           if (convert_bin.exists() && !convert_found) {
             prefs.setCharPref("convert_path", convert_bin.path);
             convert_found = true;
+            dump("Found convert in "+convert_bin.path+"\n");
           }
         })(i);
       }
 
       function on_load() {
-        if (navigator.platform.indexOf("Win") >= 0)
+        if (isWindows)
           document.getElementById("div_win32").style.display = "block";
         search_in_path();
 
@@ -69,7 +86,7 @@
         } else {
           document.getElementById("convert_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
           document.getElementById("button_yes").setAttribute("disabled", "disabled");
-          if (convert_path.toLowerCase().indexOf("system32\\convert.exe") >= 0 && navigator.platform == "Win32") {
+          if (convert_path.toLowerCase().indexOf("system32\\convert.exe") >= 0 && isWindows) {
             document.getElementById("autodetect_report").innerHTML = "<span>"+
               "Although we have found a <tt>convert.exe</tt> at <b>"+
               convert_path+"</b>, we strongly believe this is the Windows "+

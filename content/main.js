@@ -80,8 +80,12 @@ var tblatex = {
     var debug = prefs.getBoolPref("debug");
     var log = "";
     var st = 0;
-    if (debug)
+    if (debug) {
+      var env = Components.classes["@mozilla.org/process/environment;1"]
+                .getService(Components.interfaces.nsIEnvironment);
+      log += "\n$PATH is "+env.get("PATH")+"\n";
       log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
+    }
 
     if (g_image_cache[latex_expr]) {
       if (debug)
@@ -91,8 +95,16 @@ var tblatex = {
 
     var init_file = function(path) {
       var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-      f.initWithPath(path);
-      return f;
+      try {
+        f.initWithPath(path);
+        return f;
+      } catch (e) {
+        log += "This path is malformed: "+path+".\n"+
+          "Possible reasons include: you didn't setup the paths properly in the addon's options.\n";
+        return {
+          exists: function () { return false; }
+        };
+      }
     }
     var init_process = function(path) {
       var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
@@ -200,6 +212,10 @@ var tblatex = {
       log += "I ran "+convert_bin.path+" "+convert_args.join(" ")+"\n";
     if (convert_process.exitValue) {
       log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
+      log += "Possible explanations include:\n" +
+        "- you're running Windows, and you didn't install Ghostscript\n" +
+        "- you're running OSX, and you didn't launch Thunderbird from a Terminal\n\n";
+      log += "Please see http://github.com/protz/LatexIt/wiki\n";
       return [2, "", log];
     }
     g_image_cache[latex_expr] = png_file.path;
