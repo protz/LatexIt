@@ -1,5 +1,9 @@
 -- v0.6 development series --
 
+- Add PATH hacks for Thunderbird on OSX
+- Add suggestions explaining why the process might fail.
+- Better error reporting.
+- Don't choke on malformed paths.
 - Add a "load default template" button for the "insert complex latex dialog"
 - Add a "show debug information" option for people who are having trouble
 getting things to work properly

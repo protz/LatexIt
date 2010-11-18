@@ -7,6 +7,8 @@ var tblatex = {
 };
 
 (function () {
+  var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
+
   if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xul")
     return;
 
@@ -224,6 +226,15 @@ var tblatex = {
       log += ("*** Status is "+st+"\n");
       log += ("*** Path is "+png_file.path+"\n");
     }
+
+    // We must leave some time for the window manager to actually get rid of the
+    // old terminal windows that pop up on Windows when launching latex.
+    if (isWindows) {
+      setTimeout(function () {
+        window.focus();
+      }, 500);
+    }
+
     return [st, "file://"+png_file.path, log];
   }
 
