@@ -15,6 +15,14 @@ var tblatex = {
   var g_undo_func = null;
   var g_image_cache = {};
 
+  function dumpCallStack(e) {
+    let frame = e ? e.stack : Components.stack;
+    while (frame) {
+      dump("\n"+frame);
+      frame = frame.caller;
+    }
+  }
+
   function push_undo_func(f) {
     var old_undo_func = g_undo_func;
     var g = function () {
@@ -29,10 +37,11 @@ var tblatex = {
     .getBranch("tblatex.");
 
   function insertAfter(node1, node2) {
+    var parentNode = node2.parentNode;
     if (node2.nextSibling)
-      node2.parentNode.insertBefore(node1, node2.nextSibling);
+      parentNode.insertBefore(node1, node2.nextSibling);
     else
-      node2.parentNode.appendChild(node1);
+      parentNode.appendChild(node1);
   }
 
   /* splits #text [ some text $\LaTeX$ some text ] into three separates text
@@ -47,8 +56,8 @@ var tblatex = {
           var match = matches[i];
           var j = node.nodeValue.lastIndexOf(match);
           var k = j + match.length;
-          insertAfter(document.createTextNode(node.nodeValue.substr(k, (node.nodeValue.length-k))), node);
-          var latex_node = document.createTextNode(match);
+          insertAfter(node.ownerDocument.createTextNode(node.nodeValue.substr(k, (node.nodeValue.length-k))), node);
+          var latex_node = node.ownerDocument.createTextNode(match);
           latex_nodes.push(latex_node);
           insertAfter(latex_node, node);
           node.nodeValue = node.nodeValue.substr(0, j);
@@ -349,6 +358,8 @@ var tblatex = {
       replace_latex_nodes(latex_nodes, silent);
     } catch (e /*if false*/) { /*XXX do not catch errors to get full backtraces in dev cycles */
       Components.utils.reportError("TBLatex error: "+e);
+      dump(e+"\n");
+      dumpCallStack(e);
     }
     editor.endTransaction();
   };
@@ -361,6 +372,7 @@ var tblatex = {
         g_undo_func();
     } catch (e) {
       Components.utils.reportError("TBLatex Error (while undoing) "+e);
+      dumpCallStack(e);
     }
     editor.endTransaction();
     event.stopPropagation();
@@ -374,6 +386,7 @@ var tblatex = {
         g_undo_func();
     } catch (e) {
       Components.utils.reportError("TBLatex Error (while undoing) "+e);
+      dumpCallStack(e);
     }
     editor.endTransaction();
     event.stopPropagation();
@@ -405,6 +418,7 @@ var tblatex = {
         }
       } catch (e) {
         Components.utils.reportError("TBLatex Error (while inserting) "+e);
+        dumpCallStack(e);
       }
       editor.endTransaction();
     };
