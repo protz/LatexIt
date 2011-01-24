@@ -88,163 +88,175 @@ var tblatex = {
    * - log is the log messages generated during the run
    * */
   function run_latex(latex_expr, silent) {
-    var debug = prefs.getBoolPref("debug");
     var log = "";
     var st = 0;
-    if (debug) {
-      var env = Components.classes["@mozilla.org/process/environment;1"]
-                .getService(Components.interfaces.nsIEnvironment);
-      log += "\n$PATH is "+env.get("PATH")+"\n";
-      log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
-    }
-
-    if (g_image_cache[latex_expr]) {
-      if (debug)
-        log += "Found a cached image file "+g_image_cache[latex_expr]+", returning\n";
-      return [0, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
-    }
-
-    var init_file = function(path) {
-      var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-      try {
-        f.initWithPath(path);
-        return f;
-      } catch (e) {
-        log += "This path is malformed: "+path+".\n"+
-          "Possible reasons include: you didn't setup the paths properly in the addon's options.\n";
-        return {
-          exists: function () { return false; }
-        };
+    var temp_file;
+    try {
+      var debug = prefs.getBoolPref("debug");
+      if (debug) {
+        var env = Components.classes["@mozilla.org/process/environment;1"]
+                  .getService(Components.interfaces.nsIEnvironment);
+        log += "\n$PATH is "+env.get("PATH")+"\n";
+        log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
       }
-    }
-    var init_process = function(path) {
-      var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
-      process.init(path);
-      return process;
-    }
 
-    var latex_bin = init_file(prefs.getCharPref("latex_path"));
-    if (!latex_bin.exists()) {
-      log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
-      return [2, "", log];
-    }
-    var dvips_bin = init_file(prefs.getCharPref("dvips_path"));
-    if (!dvips_bin.exists()) {
-      log += "Wrong path for dvips bin. Please set the right path in the options dialog first.\n";
-      return [2, "", log];
-    }
-    var convert_bin = init_file(prefs.getCharPref("convert_path"));
-    if (!convert_bin.exists()) {
-      log += "Wrong path for convert bin. Please set the right path in the options dialog first.\n";
-      return [2, "", log];
-    }
+      if (g_image_cache[latex_expr]) {
+        if (debug)
+          log += "Found a cached image file "+g_image_cache[latex_expr]+", returning\n";
+        return [0, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
+      }
 
-    var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
-      getService(Components.interfaces.nsIProperties).
-      get("TmpD", Components.interfaces.nsIFile).path;
-    var temp_file = init_file(temp_dir);
-    temp_file.append("tblatex-"+g_suffix+".png");
-    while (temp_file.exists()) {
-      g_suffix++;
+      var init_file = function(path) {
+        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+        try {
+          f.initWithPath(path);
+          return f;
+        } catch (e) {
+          log += "This path is malformed: "+path+".\n"+
+            "Possible reasons include: you didn't setup the paths properly in the addon's options.\n";
+          return {
+            exists: function () { return false; }
+          };
+        }
+      }
+      var init_process = function(path) {
+        var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+        process.init(path);
+        return process;
+      }
+
+      var latex_bin = init_file(prefs.getCharPref("latex_path"));
+      if (!latex_bin.exists()) {
+        log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
+        return [2, "", log];
+      }
+      var dvips_bin = init_file(prefs.getCharPref("dvips_path"));
+      if (!dvips_bin.exists()) {
+        log += "Wrong path for dvips bin. Please set the right path in the options dialog first.\n";
+        return [2, "", log];
+      }
+      var convert_bin = init_file(prefs.getCharPref("convert_path"));
+      if (!convert_bin.exists()) {
+        log += "Wrong path for convert bin. Please set the right path in the options dialog first.\n";
+        return [2, "", log];
+      }
+
+      var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
+        getService(Components.interfaces.nsIProperties).
+        get("TmpD", Components.interfaces.nsIFile).path;
       temp_file = init_file(temp_dir);
       temp_file.append("tblatex-"+g_suffix+".png");
-    }
-    var temp_file_noext = "tblatex-"+g_suffix;
-    temp_file = init_file(temp_dir);
-    temp_file.append("tblatex-"+g_suffix+".tex");
-    if (temp_file.exists()) temp_file.remove(false);
+      while (temp_file.exists()) {
+        g_suffix++;
+        temp_file = init_file(temp_dir);
+        temp_file.append("tblatex-"+g_suffix+".png");
+      }
+      var temp_file_noext = "tblatex-"+g_suffix;
+      temp_file = init_file(temp_dir);
+      temp_file.append("tblatex-"+g_suffix+".tex");
+      if (temp_file.exists()) temp_file.remove(false);
 
-    // file is nsIFile, data is a string
-    var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
-      createInstance(Components.interfaces.nsIFileOutputStream);
+      // file is nsIFile, data is a string
+      var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
+        createInstance(Components.interfaces.nsIFileOutputStream);
 
-    // use 0x02 | 0x10 to open file for appending.
-    foStream.init(temp_file, 0x02 | 0x08 | 0x20, 0666, 0); 
-    // write, create, truncate
-    // In a c file operation, we have no need to set file mode with or operation,
-    // directly using "r" or "w" usually.
+      // use 0x02 | 0x10 to open file for appending.
+      foStream.init(temp_file, 0x02 | 0x08 | 0x20, 0666, 0); 
+      // write, create, truncate
+      // In a c file operation, we have no need to set file mode with or operation,
+      // directly using "r" or "w" usually.
 
-    // if you are sure there will never ever be any non-ascii text in data you can 
-    // also call foStream.writeData directly
-    var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
-      createInstance(Components.interfaces.nsIConverterOutputStream);
-    converter.init(foStream, "UTF-8", 0, 0);
-    converter.writeString(latex_expr);
-    converter.close(); // this closes foStream
+      // if you are sure there will never ever be any non-ascii text in data you can 
+      // also call foStream.writeData directly
+      var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
+        createInstance(Components.interfaces.nsIConverterOutputStream);
+      converter.init(foStream, "UTF-8", 0, 0);
+      converter.writeString(latex_expr);
+      converter.close(); // this closes foStream
 
 
-    var latex_process = init_process(latex_bin);
-    var latex_args = ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path];
-    latex_process.run(true, latex_args, latex_args.length);
-    temp_file.remove(false);
-    if (debug)
-      log += "I ran "+latex_bin.path+" "+latex_args.join(" ")+"\n";
-    if (latex_process.exitValue) {
-      st = 1;
-      log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
-    }
+      var latex_process = init_process(latex_bin);
+      var latex_args = ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path];
+      latex_process.run(true, latex_args, latex_args.length);
+      if (debug)
+        log += "I ran "+latex_bin.path+" "+latex_args.join(" ")+" error code "+latex_process.exitValue+"\n";
+      if (latex_process.exitValue) {
+        st = 1;
+        log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
+      }
 
-    ["log", "aux"].forEach(function (ext) {
-        var file = init_file(temp_dir);
-        file.append(temp_file_noext+"."+ext);
-        file.remove(false);
-      });
+      ["log", "aux"].forEach(function (ext) {
+          var file = init_file(temp_dir);
+          file.append(temp_file_noext+"."+ext);
+          file.remove(false);
+        });
 
-    var dvi_file = init_file(temp_dir);
-    dvi_file.append(temp_file_noext+".dvi");
-    if (!dvi_file.exists()) {
-      log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
+      var dvi_file = init_file(temp_dir);
+      dvi_file.append(temp_file_noext+".dvi");
+      if (!dvi_file.exists()) {
+        log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
+        return [2, "", log];
+      }
+
+      var ps_file = init_file(temp_dir);
+      ps_file.append(temp_file_noext+".ps");
+
+      var dvips_process = init_process(dvips_bin);
+      var dvips_args = ["-o", ps_file.path, "-E", dvi_file.path];
+      dvips_process.run(true, dvips_args, dvips_args.length);
+      dvi_file.remove(false);
+      if (debug)
+        log += "I ran "+dvips_bin.path+" "+dvips_args.join(" ")+"\n";
+      if (dvips_process.exitValue) {
+        log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
+        return [2, "", log];
+      }
+
+      var png_file = init_file(temp_dir);
+      png_file.append(temp_file_noext+".png");
+
+      var convert_process = init_process(convert_bin);
+      var dpi = prefs.getIntPref("dpi");
+      var convert_args = ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path];
+      convert_process.run(true, convert_args, convert_args.length);
+      ps_file.remove(false);
+      if (debug)
+        log += "I ran "+convert_bin.path+" "+convert_args.join(" ")+"\n";
+      if (convert_process.exitValue) {
+        log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
+        log += "Possible explanations include:\n" +
+          "- you're running Windows, and you didn't install Ghostscript\n" +
+          "- you're running OSX, and you didn't launch Thunderbird from a Terminal\n\n";
+        log += "Please see http://github.com/protz/LatexIt/wiki\n";
+        return [2, "", log];
+      }
+      g_image_cache[latex_expr] = png_file.path;
+
+      if (debug) {
+        log += ("*** Status is "+st+"\n");
+        log += ("*** Path is "+png_file.path+"\n");
+      }
+
+      // We must leave some time for the window manager to actually get rid of the
+      // old terminal windows that pop up on Windows when launching latex.
+      if (isWindows) {
+        setTimeout(function () {
+          window.focus();
+        }, 500);
+      }
+
+      // Only delete the temporary file at this point, so that it's left on disk
+      //  in case of error.
+      temp_file.remove(false);
+
+      return [st, "file://"+png_file.path, log];
+    } catch (e) {
+      dump(e+"\n");
+      dump(e.stack+"\n");
+      log += "Severe error. Missing package?\n";
+      log += "We left the .tex file there: "+temp_file.path+", try to run latex on it by yourself...\n";
       return [2, "", log];
     }
-
-    var ps_file = init_file(temp_dir);
-    ps_file.append(temp_file_noext+".ps");
-
-    var dvips_process = init_process(dvips_bin);
-    var dvips_args = ["-o", ps_file.path, "-E", dvi_file.path];
-    dvips_process.run(true, dvips_args, dvips_args.length);
-    dvi_file.remove(false);
-    if (debug)
-      log += "I ran "+dvips_bin.path+" "+dvips_args.join(" ")+"\n";
-    if (dvips_process.exitValue) {
-      log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
-      return [2, "", log];
-    }
-
-    var png_file = init_file(temp_dir);
-    png_file.append(temp_file_noext+".png");
-
-    var convert_process = init_process(convert_bin);
-    var dpi = prefs.getIntPref("dpi");
-    var convert_args = ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path];
-    convert_process.run(true, convert_args, convert_args.length);
-    ps_file.remove(false);
-    if (debug)
-      log += "I ran "+convert_bin.path+" "+convert_args.join(" ")+"\n";
-    if (convert_process.exitValue) {
-      log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
-      log += "Possible explanations include:\n" +
-        "- you're running Windows, and you didn't install Ghostscript\n" +
-        "- you're running OSX, and you didn't launch Thunderbird from a Terminal\n\n";
-      log += "Please see http://github.com/protz/LatexIt/wiki\n";
-      return [2, "", log];
-    }
-    g_image_cache[latex_expr] = png_file.path;
-
-    if (debug) {
-      log += ("*** Status is "+st+"\n");
-      log += ("*** Path is "+png_file.path+"\n");
-    }
-
-    // We must leave some time for the window manager to actually get rid of the
-    // old terminal windows that pop up on Windows when launching latex.
-    if (isWindows) {
-      setTimeout(function () {
-        window.focus();
-      }, 500);
-    }
-
-    return [st, "file://"+png_file.path, log];
   }
 
   function open_log() {
