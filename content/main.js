@@ -326,7 +326,7 @@ var tblatex = {
       var elt = nodes[i];
       if (!silent)
         write_log("*** Found expression "+elt.nodeValue+"\n");
-      var latex_expr = replace(template, "__REPLACEME__", elt.nodeValue);
+      var latex_expr = replace(template, "__PLACEHOLDER__", elt.nodeValue);
       var [st, url, log] = run_latex(latex_expr, silent);
       if (st || !silent)
         write_log(log);
