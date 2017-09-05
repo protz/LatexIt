@@ -103,7 +103,7 @@ var tblatex = {
       if (g_image_cache[latex_expr]) {
         if (debug)
           log += "Found a cached image file "+g_image_cache[latex_expr]+", returning\n";
-        return [0, "file://"+g_image_cache[latex_expr], log+"Image was already generated\n"];
+        return [0, g_image_cache[latex_expr], log+"Image was already generated\n"];
       }
 
       var init_file = function(path) {
@@ -249,7 +249,7 @@ var tblatex = {
       //  in case of error.
       temp_file.remove(false);
 
-      return [st, "file://"+png_file.path, log];
+      return [st, png_file.path, log];
     } catch (e) {
       dump(e+"\n");
       dump(e.stack+"\n");
@@ -334,9 +334,16 @@ var tblatex = {
         if (debug)
           write_log("--> Replacing node... ");
         var img = editor.createElementWithDefaults("img");
-        img.setAttribute("alt", elt.nodeValue);
-        img.setAttribute("src", url);
-        img.setAttribute("style", "vertical-align: middle");
+        var reader = new FileReader();
+        var file = File.createFromFileName(url);
+
+        reader.addEventListener("load", function() {
+          img.alt = elt.nodeValue;
+          img.style = "vertical-align: middle";
+          img.src = reader.result;
+        }, false);
+        reader.readAsDataURL(file);
+
         elt.parentNode.insertBefore(img, elt);
         elt.parentNode.removeChild(elt);
         push_undo_func(function () {
@@ -419,10 +426,17 @@ var tblatex = {
         write_log(log);
         if (st == 0 || st == 1) {
           var img = editor.createElementWithDefaults("img");
-          img.setAttribute("alt", latex_expr);
-          img.setAttribute("title", latex_expr);
-          img.setAttribute("src", url);
-          img.setAttribute("style", "vertical-align: middle");
+          var reader = new FileReader();
+          var file = File.createFromFileName(url);
+
+          reader.addEventListener("load", function() {
+            img.alt = latex_expr;
+            img.title = latex_expr;
+            img.style = "vertical-align: middle";
+            img.src = reader.result;
+          }, false);
+          reader.readAsDataURL(file);
+
           editor.insertElementAtSelection(img, true);
           push_undo_func(function () {
             img.parentNode.removeChild(img);
