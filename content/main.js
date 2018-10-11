@@ -434,7 +434,11 @@ var tblatex = {
         if (st == 0 || st == 1) {
           var img = editor.createElementWithDefaults("img");
           var reader = new FileReader();
-          var file = File.createFromFileName(url);
+          var xhr = new XMLHttpRequest();
+
+          xhr.addEventListener("load",function() {
+	    reader.readAsDataURL(xhr.response);
+          },false);
 
           reader.addEventListener("load", function() {
             img.alt = latex_expr;
@@ -442,7 +446,10 @@ var tblatex = {
             img.style = "vertical-align: middle";
             img.src = reader.result;
           }, false);
-          reader.readAsDataURL(file);
+
+          xhr.open('GET',"file://"+url);
+          xhr.responseType = 'blob';
+          xhr.send();
 
           editor.insertElementAtSelection(img, true);
           push_undo_func(function () {
