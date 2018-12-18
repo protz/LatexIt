@@ -9,7 +9,8 @@
     var suggestions = [
       "/usr/local/bin",
       "/usr/texbin",
-      "/usr/X11/bin"
+      "/usr/X11/bin",
+      "/usr/local/texlive/2016/bin/x86_64-darwin/"
     ];
     for (var i = 0; i < suggestions.length; ++i) {
       if (paths.indexOf(suggestions[i]) < 0)

@@ -161,12 +161,12 @@ var tblatex = {
         createInstance(Components.interfaces.nsIFileOutputStream);
 
       // use 0x02 | 0x10 to open file for appending.
-      foStream.init(temp_file, 0x02 | 0x08 | 0x20, 0666, 0); 
+      foStream.init(temp_file, 0x02 | 0x08 | 0x20, 0666, 0);
       // write, create, truncate
       // In a c file operation, we have no need to set file mode with or operation,
       // directly using "r" or "w" usually.
 
-      // if you are sure there will never ever be any non-ascii text in data you can 
+      // if you are sure there will never ever be any non-ascii text in data you can
       // also call foStream.writeData directly
       var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
         createInstance(Components.interfaces.nsIConverterOutputStream);
@@ -336,29 +336,30 @@ var tblatex = {
         var img = editor.createElementWithDefaults("img");
         var reader = new FileReader();
         var xhr = new XMLHttpRequest();
-  
+
         xhr.addEventListener("load",function() {
           reader.readAsDataURL(xhr.response);
         },false);
 
         reader.addEventListener("load", function() {
+          elt.parentNode.insertBefore(img, elt);
+          elt.parentNode.removeChild(elt);
+
           img.alt = elt.nodeValue;
           img.style = "vertical-align: middle";
           img.src = reader.result;
+
+          push_undo_func(function () {
+            img.parentNode.insertBefore(elt, img);
+            img.parentNode.removeChild(img);
+          });
+          if (debug)
+            write_log("done\n");
         }, false);
 
         xhr.open('GET',"file://"+url);
         xhr.responseType = 'blob';
         xhr.send();
-
-        elt.parentNode.insertBefore(img, elt);
-        elt.parentNode.removeChild(elt);
-        push_undo_func(function () {
-          img.parentNode.insertBefore(elt, img);
-          img.parentNode.removeChild(img);
-        });
-        if (debug)
-          write_log("done\n");
       } else {
         if (debug)
           write_log("--> Failed, not inserting\n");
@@ -441,20 +442,21 @@ var tblatex = {
           },false);
 
           reader.addEventListener("load", function() {
+            editor.insertElementAtSelection(img, true);
+
             img.alt = latex_expr;
             img.title = latex_expr;
             img.style = "vertical-align: middle";
             img.src = reader.result;
+
+            push_undo_func(function () {
+              img.parentNode.removeChild(img);
+            });
           }, false);
 
           xhr.open('GET',"file://"+url);
           xhr.responseType = 'blob';
           xhr.send();
-
-          editor.insertElementAtSelection(img, true);
-          push_undo_func(function () {
-            img.parentNode.removeChild(img);
-          });
         }
       } catch (e) {
         Components.utils.reportError("TBLatex Error (while inserting) "+e);
