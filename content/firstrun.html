@@ -5,14 +5,14 @@
     <title>Configuring Thunderbird LaTeX extension</title>
     <meta http-equiv="Content-Type" content="text/HTML; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="firstrun.css" />
-    <script type="application/x-javascript">
+    <script type="application/javascript">
       var Cc = Components.classes;
       var Ci = Components.interfaces;
       var prefs = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService).getBranch("tblatex.");
       var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
 
       function init_file(path) {
-        var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+        var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
         try {
           f.initWithPath(path);
         } catch (e) {

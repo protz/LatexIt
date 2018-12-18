@@ -9,7 +9,7 @@
   buttonlabelaccept="Ok"
   ondialogaccept="return on_ok();"
   ondialogcancel="return on_cancel();">
-  <script type="application/x-javascript" src="chrome://tblatex/content/insert.js" />
+  <script type="application/javascript" src="chrome://tblatex/content/insert.js" />
     
     <dialogheader title="Latex It!" description="Insert a complex LaTeX expression"/>
     <groupbox>

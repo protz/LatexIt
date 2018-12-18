@@ -2,8 +2,13 @@ function pick_file(pref, title) {
   var nsIFilePicker = Components.interfaces.nsIFilePicker;
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   fp.init(window, "Select the "+title+" binary", nsIFilePicker.modeOpen);
-  if (fp.show() == nsIFilePicker.returnOK)
+
+  fp.open(rv => {
+    if( rv != nsIFilePicker.returnOK) {
+      return;
+    }
     pref.value = fp.file.path;
+  });
 }
 
 function add_links(aDoc) {
@@ -23,7 +28,7 @@ function add_links(aDoc) {
 
         Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
           .getService(Components.interfaces.nsIExternalProtocolService)
-          .loadUrl(uri);
+          .loadURI(uri);
 
         event.preventDefault();
       }, true);

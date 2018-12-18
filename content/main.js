@@ -107,7 +107,7 @@ var tblatex = {
       }
 
       var init_file = function(path) {
-        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
         try {
           f.initWithPath(path);
           return f;
@@ -335,14 +335,21 @@ var tblatex = {
           write_log("--> Replacing node... ");
         var img = editor.createElementWithDefaults("img");
         var reader = new FileReader();
-        var file = File.createFromFileName(url);
+        var xhr = new XMLHttpRequest();
+  
+	xhr.addEventListener("load",function() {
+	  reader.readAsDataURL(xhr.response);
+	},false);
 
         reader.addEventListener("load", function() {
           img.alt = elt.nodeValue;
           img.style = "vertical-align: middle";
           img.src = reader.result;
         }, false);
-        reader.readAsDataURL(file);
+
+	xhr.open('GET',"file://"+url);
+	xhr.responseType = 'blob';
+	xhr.send();
 
         elt.parentNode.insertBefore(img, elt);
         elt.parentNode.removeChild(elt);
@@ -427,7 +434,11 @@ var tblatex = {
         if (st == 0 || st == 1) {
           var img = editor.createElementWithDefaults("img");
           var reader = new FileReader();
-          var file = File.createFromFileName(url);
+          var xhr = new XMLHttpRequest();
+
+          xhr.addEventListener("load",function() {
+	    reader.readAsDataURL(xhr.response);
+          },false);
 
           reader.addEventListener("load", function() {
             img.alt = latex_expr;
@@ -435,7 +446,10 @@ var tblatex = {
             img.style = "vertical-align: middle";
             img.src = reader.result;
           }, false);
-          reader.readAsDataURL(file);
+
+          xhr.open('GET',"file://"+url);
+          xhr.responseType = 'blob';
+          xhr.send();
 
           editor.insertElementAtSelection(img, true);
           push_undo_func(function () {

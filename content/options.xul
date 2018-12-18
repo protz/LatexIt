@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
- 
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css" type="text/css"?>
 <prefwindow id="tblatex-prefs"
      title="TBLaTeX options"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/x-javascript" src="chrome://tblatex/content/options.js" />
+  <script type="application/javascript" src="chrome://tblatex/content/options.js" />
  
   <prefpane id="tblatex-paths" label="Files and Paths" image="chrome://messenger/skin/preferences/general.png">
     <preferences>

@@ -3,16 +3,18 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
   <Description about="urn:mozilla:install-manifest">
+    <em:type>2</em:type> <!-- add-on is of type extension -->
+    <em:updateURL>https://github.com/indigestion/LatexIt/blob/master/install.rdf</em:updateURL>
     <em:id>tblatex@xulforum.org</em:id>
-    <em:version>0.6.4</em:version>
+    <em:version>0.6.6__REPLACEME__</em:version>
     
     <!-- Target Application this theme can install into, 
         with minimum and maximum supported versions. --> 
     <em:targetApplication>
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-        <em:minVersion>52.0</em:minVersion>
-        <em:maxVersion>57.0</em:maxVersion>
+        <em:minVersion>60.0</em:minVersion>
+        <em:maxVersion>60.*</em:maxVersion>
       </Description>
     </em:targetApplication>
     
@@ -20,8 +22,8 @@
     <em:name>LaTeX It!</em:name>
     <em:description>Automatically change $\LaTeX$ into images in your HTML mails.</em:description>
     <em:optionsURL>chrome://tblatex/content/options.xul</em:optionsURL>
+    <em:optionsType>3</em:optionsType> <!-- needed to have preferences save properly -->
     <em:iconURL>chrome://tblatex/content/icon.png</em:iconURL>
-
 
     <em:creator>Jonathan Protzenko</em:creator>
   </Description>      

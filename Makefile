@@ -1,9 +1,11 @@
 SED = $(shell which gsed >/dev/null 2>&1 && echo gsed || echo sed)
 EXCLUDES = $(addprefix --exclude , $(shell find . -iname '.*.sw*'))
 
+VERSION=0.6.6
+
 all: debug_template dist
 
-release: release_template dist
+release: release_template dist releaseCopy
 
 dist:
 	rm -f tblatex.xpi
