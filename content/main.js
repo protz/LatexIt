@@ -337,9 +337,9 @@ var tblatex = {
         var reader = new FileReader();
         var xhr = new XMLHttpRequest();
   
-	xhr.addEventListener("load",function() {
-	  reader.readAsDataURL(xhr.response);
-	},false);
+        xhr.addEventListener("load",function() {
+          reader.readAsDataURL(xhr.response);
+        },false);
 
         reader.addEventListener("load", function() {
           img.alt = elt.nodeValue;
@@ -347,9 +347,9 @@ var tblatex = {
           img.src = reader.result;
         }, false);
 
-	xhr.open('GET',"file://"+url);
-	xhr.responseType = 'blob';
-	xhr.send();
+        xhr.open('GET',"file://"+url);
+        xhr.responseType = 'blob';
+        xhr.send();
 
         elt.parentNode.insertBefore(img, elt);
         elt.parentNode.removeChild(elt);
@@ -437,7 +437,7 @@ var tblatex = {
           var xhr = new XMLHttpRequest();
 
           xhr.addEventListener("load",function() {
-	    reader.readAsDataURL(xhr.response);
+            reader.readAsDataURL(xhr.response);
           },false);
 
           reader.addEventListener("load", function() {
