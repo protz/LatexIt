@@ -359,6 +359,7 @@ var tblatex = {
 
         xhr.open('GET',"file://"+url);
         xhr.responseType = 'blob';
+        xhr.overrideMimeType("image/png");
         xhr.send();
       } else {
         if (debug)

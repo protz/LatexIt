@@ -5,7 +5,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:type>2</em:type> <!-- add-on is of type extension -->
     <em:id>tblatex@xulforum.org</em:id>
-    <em:version>0.6.6__REPLACEME__</em:version>
+    <em:version>0.6.7__REPLACEME__</em:version>
     
     <!-- Target Application this theme can install into, 
         with minimum and maximum supported versions. --> 

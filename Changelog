@@ -1,10 +1,16 @@
+--v0.6.7
+
+- Fixed the mime type of the embedded image to image/png
+
 --v0.6.6
--Adding suggestions from trying to sign add-on through Mozilla
--Update URL points to github
--remove manifest.json from xpi, that shouldn't have been there
+
+- Adding suggestions from trying to sign add-on through Mozilla
+- Update URL points to github
+- remove manifest.json from xpi, that shouldn't have been there
 
 -- v0.6.5
--Support for TB60+
+
+- Support for TB60+
 
 -- v0.6 development series --
 
