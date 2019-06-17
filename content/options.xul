@@ -9,8 +9,7 @@
   <prefpane id="tblatex-paths" label="Files and Paths" image="chrome://messenger/skin/preferences/general.png">
     <preferences>
       <preference id="latex_path" name="tblatex.latex_path" type="string" />
-      <preference id="dvips_path" name="tblatex.dvips_path" type="string" />
-      <preference id="convert_path" name="tblatex.convert_path" type="string" />
+      <preference id="dvipng_path" name="tblatex.dvipng_path" type="string" />
       <preference id="dpi" name="tblatex.dpi" type="int" />
       <preference id="log" name="tblatex.log" type="bool" />
       <preference id="debug" name="tblatex.debug" type="bool" />
@@ -29,14 +28,9 @@
           <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[0], 'latex');" />
         </row>
         <row>
-          <label control="dvips_textbox" value="Path to dvips executable" />
-          <textbox preference="dvips_path" id="dvips_textbox" />
-          <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvips');" />
-        </row>
-        <row>
-          <label control="convert_textbox" value="Path to convert executable" />
-          <textbox preference="convert_path" id="convert_textbox" />
-          <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[2], 'convert');" />
+          <label control="dvipng_textbox" value="Path to dvipng executable" />
+          <textbox preference="dvipng_path" id="dvipng_textbox" />
+          <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvipng');" />
         </row>
         <row>
           <label control="dpi_textbox" value="Resolution (dpi)" />

@@ -23,18 +23,14 @@ __REPLACEME__ %this is where your LaTeX expression goes
 \end{document}
     </pre>
    <p>
-    To insert LaTeX, we first convert <tt>dvi</tt> to <tt>png</tt> through
-    <tt>ps</tt>, then we crop the resulting full-page PNG file to a small image
+    To insert LaTeX, we convert <tt>dvi</tt> to <tt>png</tt> directly. In the
+    process the PNG file is cropped to a small image
     that only contains the formula. The <tt>\pagestyle{empty}</tt> line removes
     extra output such as page numbers, which is why cropping works.
     </p>
     <p>
     The <tt>__REPLACEME__</tt> word will be replaced with the LaTeX expression
     you specified. Therefore, it is important you put it in the right place.
-    </p>
-    <p>
-    We are not using PDFTex but a PS-based production chain, so please keep that
-    in mind when using extra packages (i.e. color). 
     </p>
     <p>
     The file is written as UTF-8 (always) so please do not remove the
