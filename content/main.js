@@ -49,7 +49,7 @@ var tblatex = {
   function split_text_nodes(node) {
     var latex_nodes = [];
     if (node.nodeType == node.TEXT_NODE) {
-      var re = /\$\$[^\$]+\$\$|\$[^\$]+\$/g;
+      var re = /\$\$[^\$]+\$\$|\$[^\$]+\$|\\\[.*?\\\]|\\\(.*?\\\)/g;
       var matches = node.nodeValue.match(re);
       if (matches) {
         for (var i = matches.length - 1; i >= 0; --i) (function (i) {
