@@ -1,5 +1,13 @@
 (function () {
   function on_load() {
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+      .getService(Components.interfaces.nsIPrefService)
+      .getBranch("tblatex.");
+    var convert_path = prefs.getCharPref("convert_path");
+    if ((prefs.getIntPref("firstrun") == 1 && !(convert_path.toLowerCase().indexOf("system32\\convert.exe") >= 0 && navigator.platform == "Win32"))
+        || prefs.getIntPref("firstrun") == 2)
+      return;
+
     var tabmail = document.getElementById("tabmail");
     if (tabmail && 'openTab' in tabmail) /* Took this from Personas code ("Browse gallery"...) */
       Components.classes['@mozilla.org/appshell/window-mediator;1'].
