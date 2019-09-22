@@ -4,8 +4,7 @@
       .getService(Components.interfaces.nsIPrefService)
       .getBranch("tblatex.");
     var convert_path = prefs.getCharPref("convert_path");
-    if ((prefs.getIntPref("firstrun") == 1 && !(convert_path.toLowerCase().indexOf("system32\\convert.exe") >= 0 && navigator.platform == "Win32"))
-        || prefs.getIntPref("firstrun") == 2)
+    if (prefs.getIntPref("firstrun") == 3)
       return;
 
     var tabmail = document.getElementById("tabmail");
