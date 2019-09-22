@@ -4,6 +4,7 @@
 <dialog id="tblatex-dialog-insert"
   title="Insert a LaTeX expression"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   buttons="accept,cancel"
   buttonlabelcancel="Cancel"
   buttonlabelaccept="Ok"
@@ -15,7 +16,7 @@
     <groupbox>
       <description>Edit the default document below and the visible parts will be
       inserted in your email</description>
-      <textbox id="tblatex-expr" multiline="true" rows="24" />
+      <html:textarea id="tblatex-expr" multiline="true" rows="24" />
       <hbox>
         <button label="Load default template" oncommand="on_reset();" />
         <spacer flex="1" />

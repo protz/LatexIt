@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "applications": {
+    "gecko": {
+      "id": "tblatex@xulforum.org",
+      "strict_min_version": "68.0a1"
+    }
+  },
+  "author": "Jonathan Protzenko",
+  "name": "LaTeX It!",
+  "description": "Automatically change $\\LaTeX$ into images in your HTML mails.",
+  "version": "0.6.8",
+  "homepage_url": "https://github.com/protz/LatexIt/wiki",
+  "legacy": true
+}
