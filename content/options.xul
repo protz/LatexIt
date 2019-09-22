@@ -14,12 +14,12 @@
     <hbox>
       <label control="latex_textbox" value="Path to latex executable" />
       <textbox preference="tblatex.latex_path" id="latex_textbox" />
-      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[0], 'latex');" />
+      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('textbox')[0], 'latex');" />
     </hbox>
     <hbox>
       <label control="dvipng_textbox" value="Path to dvipng executable" />
       <textbox preference="tblatex.dvipng_path" id="dvipng_textbox" />
-      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvipng');" />
+      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('textbox')[1], 'dvipng');" />
     </hbox>
     <hbox>
       <label control="dpi_textbox" value="Resolution (dpi)" />
