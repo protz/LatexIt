@@ -130,14 +130,9 @@ var tblatex = {
         log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
         return [2, "", log];
       }
-      var dvips_bin = init_file(prefs.getCharPref("dvips_path"));
-      if (!dvips_bin.exists()) {
-        log += "Wrong path for dvips bin. Please set the right path in the options dialog first.\n";
-        return [2, "", log];
-      }
-      var convert_bin = init_file(prefs.getCharPref("convert_path"));
-      if (!convert_bin.exists()) {
-        log += "Wrong path for convert bin. Please set the right path in the options dialog first.\n";
+      var dvipng_bin = init_file(prefs.getCharPref("dvipng_path"));
+      if (!dvipng_bin.exists()) {
+        log += "Wrong path for dvipng bin. Please set the right path in the options dialog first.\n";
         return [2, "", log];
       }
 
@@ -198,36 +193,18 @@ var tblatex = {
         return [2, "", log];
       }
 
-      var ps_file = init_file(temp_dir);
-      ps_file.append(temp_file_noext+".ps");
-
-      var dvips_process = init_process(dvips_bin);
-      var dvips_args = ["-o", ps_file.path, "-E", dvi_file.path];
-      dvips_process.run(true, dvips_args, dvips_args.length);
-      dvi_file.remove(false);
-      if (debug)
-        log += "I ran "+dvips_bin.path+" "+dvips_args.join(" ")+"\n";
-      if (dvips_process.exitValue) {
-        log += "dvips failed with error code "+dvips_process.exitValue+". Aborting.\n";
-        return [2, "", log];
-      }
-
       var png_file = init_file(temp_dir);
       png_file.append(temp_file_noext+".png");
 
-      var convert_process = init_process(convert_bin);
+      var dvipng_process = init_process(dvipng_bin);
       var dpi = prefs.getIntPref("dpi");
-      var convert_args = ["-units", "PixelsPerInch", "-density", dpi, ps_file.path, "-trim", png_file.path];
-      convert_process.run(true, convert_args, convert_args.length);
-      ps_file.remove(false);
+      var dvipng_args = ["-T", "tight", "-D", dpi, "-o", png_file.path, dvi_file.path];
+      dvipng_process.run(true, dvipng_args, dvipng_args.length);
+      dvi_file.remove(false);
       if (debug)
-        log += "I ran "+convert_bin.path+" "+convert_args.join(" ")+"\n";
-      if (convert_process.exitValue) {
-        log += "convert failed with error code "+convert_process.exitValue+". Aborting.\n";
-        log += "Possible explanations include:\n" +
-          "- you're running Windows, and you didn't install Ghostscript\n" +
-          "- you're running OSX, and you didn't launch Thunderbird from a Terminal\n\n";
-        log += "Please see http://github.com/protz/LatexIt/wiki\n";
+        log += "I ran "+dvipng_bin.path+" "+dvipng_args.join(" ")+"\n";
+      if (dvipng_process.exitValue) {
+        log += "dvipng failed with error code "+dvipng_process.exitValue+". Aborting.\n";
         return [2, "", log];
       }
       g_image_cache[latex_expr] = png_file.path;

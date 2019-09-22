@@ -1,6 +1,5 @@
 pref("tblatex.latex_path", "");
-pref("tblatex.dvips_path", "");
-pref("tblatex.convert_path", "");
+pref("tblatex.dvipng_path", "");
 pref("tblatex.dpi", 150);
 pref("tblatex.log", true);
 pref("tblatex.debug", false);

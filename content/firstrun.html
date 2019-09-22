@@ -29,7 +29,7 @@
         var sep = isWindows ? ";" : ":";
         var ext = isWindows ? ".exe" : "";
         var dirs = env.get("PATH").split(sep);
-        var latex_found = false; var dvips_found = false; var convert_found = false;
+        var latex_found = false; var dvipng_found = false;
         for (var i = 0; i < dirs.length; ++i) (function (i) {
           var latex_bin = init_file(dirs[i]);
           if (latex_bin.exists())
@@ -39,21 +39,13 @@
             latex_found = true;
             dump("Found latex in "+latex_bin.path+"\n");
           }
-          var dvips_bin = init_file(dirs[i]);
-          if (dvips_bin.exists())
-            dvips_bin.append("dvips"+ext);
-          if (dvips_bin.exists() && !dvips_found) {
-            prefs.setCharPref("dvips_path", dvips_bin.path);
-            dvips_found = true;
-            dump("Found dvips in "+dvips_bin.path+"\n");
-          }
-          var convert_bin = init_file(dirs[i]);
-          if (convert_bin.exists())
-            convert_bin.append("convert"+ext);
-          if (convert_bin.exists() && !convert_found) {
-            prefs.setCharPref("convert_path", convert_bin.path);
-            convert_found = true;
-            dump("Found convert in "+convert_bin.path+"\n");
+          var dvipng_bin = init_file(dirs[i]);
+          if (dvipng_bin.exists())
+            dvipng_bin.append("dvipng"+ext);
+          if (dvipng_bin.exists() && !dvipng_found) {
+            prefs.setCharPref("dvipng_path", dvipng_bin.path);
+            dvipng_found = true;
+            dump("Found dvipng in "+dvipng_bin.path+"\n");
           }
         })(i);
       }
@@ -71,32 +63,13 @@
           document.getElementById("latex_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
           document.getElementById("button_yes").setAttribute("disabled", "disabled");
         }
-        var dvips_path = prefs.getCharPref("dvips_path");
-        if (dvips_path.length > 0 && init_file(dvips_path).exists()) {
-          document.getElementById("dvips_path").appendChild(document.createTextNode(dvips_path));
-          document.getElementById("dvips_icon").src = "accept.png";
+        var dvipng_path = prefs.getCharPref("dvipng_path");
+        if (dvipng_path.length > 0 && init_file(dvipng_path).exists()) {
+          document.getElementById("dvipng_path").appendChild(document.createTextNode(dvipng_path));
+          document.getElementById("dvipng_icon").src = "accept.png";
         } else {
-          document.getElementById("dvips_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
+          document.getElementById("dvipng_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
           document.getElementById("button_yes").setAttribute("disabled", "disabled");
-        }
-        var convert_path = prefs.getCharPref("convert_path");
-        if (convert_path.length > 0 && init_file(convert_path).exists() && convert_path.toLowerCase().indexOf("system32\\convert.exe") < 0) {
-          document.getElementById("convert_path").appendChild(document.createTextNode(convert_path));
-          document.getElementById("convert_icon").src = "accept.png";
-        } else {
-          document.getElementById("convert_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
-          document.getElementById("button_yes").setAttribute("disabled", "disabled");
-          if (convert_path.toLowerCase().indexOf("system32\\convert.exe") >= 0 && isWindows) {
-            document.getElementById("autodetect_report").innerHTML = "<span>"+
-              "Although we have found a <tt>convert.exe</tt> at <b>"+
-              convert_path+"</b>, we strongly believe this is the Windows "+
-              "<tt>convert</tt> utility, usually located in C:\\WINDOWS\\system32. "+
-              "Please select the right <tt>convert.exe</tt> utility, usually "+
-              "found in C:\\Program Files\\ImageMagick-N-N-N-Q16\\, when taken "+
-              "to the options screen. If we were wrong, please <a href='#'"+
-              "onclick=\"document.getElementById('button_yes').removeAttribute('disabled'); return false;\">"+
-              "click here</a>.</span>";
-          }
         }
 
         if (window.arguments && window.arguments[0]) {
@@ -122,16 +95,13 @@
     found are correct.
     <h2>Required software</h2>
     <p>
-      This extension depends on a regular LaTeX distribution and the ImageMagick
+      This extension depends on a regular LaTeX distribution and the dvipng
       software. If you haven't installed them already, here are a few tips. If
       you are running Linux, both can be easily installed through your
       distribution's package manager. If running MacOS, <a class="external"
         href="http://www.tug.org/mactex/">MacTeX</a> is probably what you're
       looking for. If running Windows, <a class="external"
-        href="http://www.miktex.org">MiKTeX</a> is known to work. The <a
-        class="external"
-        href="http://www.imagemagick.org/download/www/binary-releases.html">ImageMagick
-        website</a> offers binary downloads for MacOS and Windows.
+        href="http://www.miktex.org">MiKTeX</a> is known to work.
     </p>
     <p style="color: #8F2E2E">
       If you choose to install this software now, please make sure you click
@@ -141,40 +111,19 @@
     <div id="div_win32" style="display: none;">
       <h2>Attention!</h2>
       <p>
-      It appears you are running Microsoft Windows. <strong>Please make sure you have
-        installed GhostScript</strong>, as this software is required for
-      <tt>convert</tt> to be able to translate EPS to PNG. A downloadable
-      installer is available <a class="external"
-        href="http://sourceforge.net/projects/ghostscript/">here</a>.
+      It appears you are running Microsoft Windows.
       </p>
       <p>
       Other software is available here:
       <ul>
         <li><a class="external" href="http://www.miktex.org">MiKTeX</a> includes both
-        <tt>latex</tt> and <tt>dvips</tt> executables.</li>
-        <li><a class="external"
-          href="http://www.imagemagick.org/download/www/binary-releases.html#windows">ImageMagick</a>
-        includes <tt>convert</tt>.</li>
+        <tt>latex</tt> and <tt>dvipng</tt> executables.</li>
       </ul>
-      </p>
-      <h2>Path to <tt>convert.exe</tt></h2>
-      <p>
-      Please also double-check that the <tt>convert.exe</tt> utility found is
-      the one in the ImageMagick install directory, not the one in the
-      <tt>system32</tt> directory. There is a Windows utility that bears the
-      same name, and unless you have checked the "Add ImageMagick install
-      directory to system PATH" option during ImageMagick installation, the
-      wrong utility will be found.
-      </p>
-      <p style="color: #8F2E2E">
-        Some users have reported that the 64-bit version of Imagemagick has some
-        issues on 64-bit Windows. If unsure, please install the 32-bit version.
       </p>
       <h2>Where is the required software on Windows?</h2>
       <p>
-      If autodetection failed, <tt>latex.exe</tt> and <tt>dvips.exe</tt> are
+      If autodetection failed, <tt>latex.exe</tt> and <tt>dvipng.exe</tt> are
       usually found in the <tt>miktex\bin</tt> folder of your MiKTeX install
-      directory. <tt>convert.exe</tt> is located in the ImageMagick install
       directory.
       </p>
     </div>
@@ -184,8 +133,7 @@
     </p>
     <ul>
       <li>LaTeX: <span id="latex_path"></span>&nbsp;<img id="latex_icon" src="exclamation.png" /></li>
-      <li>dvips: <span id="dvips_path"></span>&nbsp;<img id="dvips_icon" src="exclamation.png" /></li>
-      <li>convert: <span id="convert_path"></span>&nbsp;<img id="convert_icon" src="exclamation.png" /></li>
+      <li>dvipng: <span id="dvipng_path"></span>&nbsp;<img id="dvipng_icon" src="exclamation.png" /></li>
     </ul>
     <span id="autodetect_report"></span>
     <p><strong><u>Are these settings correct?</u></strong></p>

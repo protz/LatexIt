@@ -17,14 +17,9 @@
       <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[0], 'latex');" />
     </hbox>
     <hbox>
-      <label control="dvips_textbox" value="Path to dvips executable" />
-      <textbox preference="tblatex.dvips_path" id="dvips_textbox" />
-      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvips');" />
-    </hbox>
-    <hbox>
-      <label control="convert_textbox" value="Path to convert executable" />
-      <textbox preference="tblatex.convert_path" id="convert_textbox" />
-      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[2], 'convert');" />
+      <label control="dvipng_textbox" value="Path to dvipng executable" />
+      <textbox preference="tblatex.dvipng_path" id="dvipng_textbox" />
+      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('preference')[1], 'dvipng');" />
     </hbox>
     <hbox>
       <label control="dpi_textbox" value="Resolution (dpi)" />

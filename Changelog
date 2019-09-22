@@ -1,3 +1,7 @@
+--v0.7
+
+- Use latex/dvipng instead of latex/dvips/convert to generate the image file.
+
 --v0.6.7
 
 - Fixed the mime type of the embedded image to image/png
