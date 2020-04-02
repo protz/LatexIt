@@ -309,7 +309,7 @@ var tblatex = {
         write_log(log);
       if (st == 0 || st == 1) {
         if (debug)
-          write_log("--> Replacing node... ");
+          write_log("--> Adding at cursor position... ");
         var img = editor.createElementWithDefaults("img");
         var reader = new FileReader();
         var xhr = new XMLHttpRequest();
@@ -402,6 +402,7 @@ var tblatex = {
   tblatex.on_insert_complex = function (event) {
     var editor = GetCurrentEditor();
     var f = function (latex_expr) {
+      var debug = prefs.getBoolPref("debug");
       g_complex_input = latex_expr;
       editor.beginTransaction();
       try {
@@ -411,6 +412,8 @@ var tblatex = {
         log = log || "Everything went OK.\n";
         write_log(log);
         if (st == 0 || st == 1) {
+          if (debug)
+            write_log("--> Replacing node... ");
           var img = editor.createElementWithDefaults("img");
           var reader = new FileReader();
           var xhr = new XMLHttpRequest();
@@ -423,18 +426,23 @@ var tblatex = {
             editor.insertElementAtSelection(img, true);
 
             img.alt = latex_expr;
-            img.title = latex_expr;
             img.style = "vertical-align: middle";
             img.src = reader.result;
 
             push_undo_func(function () {
               img.parentNode.removeChild(img);
             });
+            if (debug)
+              write_log("done\n");
           }, false);
 
           xhr.open('GET',"file://"+url);
           xhr.responseType = 'blob';
+          xhr.overrideMimeType("image/png");
           xhr.send();
+        } else {
+          if (debug)
+            write_log("--> Failed, not inserting\n");
         }
       } catch (e) {
         Components.utils.reportError("TBLatex Error (while inserting) "+e);
@@ -443,7 +451,7 @@ var tblatex = {
       editor.endTransaction();
     };
     var template = g_complex_input || prefs.getCharPref("template");
-    window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome", f, template);
+    window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome, resizable=yes", f, template);
     event.stopPropagation();
   };
 

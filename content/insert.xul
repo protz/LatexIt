@@ -5,11 +5,8 @@
   title="Insert a LaTeX expression"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  buttons="accept,cancel"
-  buttonlabelcancel="Cancel"
-  buttonlabelaccept="Ok"
-  ondialogaccept="return on_ok();"
-  ondialogcancel="return on_cancel();">
+  buttons="cancel"
+  buttonlabelcancel="Quit">
   <script type="application/javascript" src="chrome://tblatex/content/insert.js" />
     
     <dialogheader title="Latex It!" description="Insert a complex LaTeX expression"/>
@@ -20,6 +17,7 @@
       <hbox>
         <button label="Load default template" oncommand="on_reset();" />
         <spacer flex="1" />
+        <button label="Insert at cursor position" oncommand="on_ok();" />
       </hbox>
    </groupbox>
 </dialog>

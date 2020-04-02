@@ -1,3 +1,7 @@
+--v0.7.1
+
+- Fixed the insertion of complex LaTeX.
+
 --v0.7
 
 - Use latex/dvipng instead of latex/dvips/convert to generate the image file.
