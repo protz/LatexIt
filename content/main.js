@@ -470,10 +470,10 @@ var tblatex = {
     event.stopPropagation();
   };
 
-  tblatex.on_open_options = function (event) {
-    window.openDialog("chrome://tblatex/content/options.xul", "", "");
-    event.stopPropagation();
-  };
+//  tblatex.on_open_options = function (event) {
+//    window.openDialog("chrome://tblatex/content/options.xul", "", "");
+//    event.stopPropagation();
+//  };
 
   /* Is this even remotey useful ? */
   /* Yes, because we can disable the toolbar button and menu items for plain text messages! */
@@ -490,7 +490,7 @@ var tblatex = {
           btn.tooltipText = "Start a message in HTML format (by holding the 'Shift' key) to be able to turn every $...$ into a LaTeX image"
           btn.disabled = true;
         }
-        for (var id of ["tblatex-context", "tblatex-context-undo", "tblatex-context-undo_all", "tblatex-context-insert_complex"]) {
+        for (var id of ["tblatex-context", "tblatex-context-menu"]) {
             var menu = document.getElementById(id);
             if (menu)
                 menu.disabled = true;

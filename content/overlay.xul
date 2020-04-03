@@ -27,10 +27,6 @@
         <menuitem id="tblatex-context-insert_complex"
           label="Insert complex LaTeX"
           oncommand="tblatex.on_insert_complex(event);" />
-        <menuseparator/>
-        <menuitem id="tblatex-context-open_options"
-          label="Options"
-          oncommand="tblatex.on_open_options(event);" />
       </menupopup>
     </menu>
     <menuseparator/>
@@ -57,11 +53,6 @@
         <menuitem label="Insert complex LaTeX" id="tblatex-button-insert_complex"
           oncommand="tblatex.on_insert_complex(event);"
           tooltiptext="Open a dialog to insert an arbitrary chunk of LaTeX"
-          />
-        <menuseparator />
-        <menuitem label="Options" id="tblatex-button-open_options"
-          oncommand="tblatex.on_open_options(event);"
-          tooltiptext="Open the options dialog"
           />
       </menupopup>
     </toolbarbutton>

@@ -5,6 +5,8 @@
   - Middle click calls 'undo'.
   - Shift+middle click callse 'undo_all'.
 - Added context menu to composer window.
+- Added LaTeXIt! to the Add-ons menu to access the preferences:
+  - Removed the configuration item from toolbar and context menues.
 
 --v0.7
 
