@@ -476,21 +476,24 @@ var tblatex = {
   };
 
   /* Is this even remotey useful ? */
-  /* Yes, because we can disable the toolbar button for plain text messages! */
+  /* Yes, because we can disable the toolbar button and menu items for plain text messages! */
   window.addEventListener("load",
     function () {
       var tb = document.getElementById("composeToolbar2");
       tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
 
-      // Disable the button for non-html composer windows
+      // Disable the button and menu for non-html composer windows
+      var editor_elt = document.getElementById("content-frame");
+      if (editor_elt.editortype != "htmlmail") {
       var btn = document.getElementById("tblatex-button-1");
       if (btn) {
-        var editor_elt = document.getElementById("content-frame");
-        if (editor_elt.editortype != "htmlmail") {
           btn.tooltipText = "Start a message in HTML format (by holding the 'Shift' key) to be able to turn every $...$ into a LaTeX image"
           btn.disabled = true;
-        } else {
-          btn.disabled = false;
+        }
+        for (var id of ["tblatex-context", "tblatex-context-undo", "tblatex-context-undo_all", "tblatex-context-insert_complex"]) {
+            var menu = document.getElementById(id);
+            if (menu)
+                menu.disabled = true;
         }
       }
     }, false);

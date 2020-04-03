@@ -4,6 +4,7 @@
   - Button is disabled for plain text composer windows.
   - Middle click calls 'undo'.
   - Shift+middle click callse 'undo_all'.
+- Added context menu to composer window.
 
 --v0.7
 

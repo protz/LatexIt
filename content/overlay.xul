@@ -9,6 +9,32 @@
       oncommand="tblatex.on_latexit(event, true);"
       />
   </keyset>
+  <popup id="msgComposeContext">
+    <menuseparator/>
+    <menuitem id="tblatex-context"
+      label="LaTeX It!"
+      class="menuitem-iconic"
+      oncommand="tblatex.on_latexit(event, false);" />
+    <menu id="tblatex-context-menu"
+      label="More LaTeX It!">
+      <menupopup id="tblatex-context-popup">
+        <menuitem id="tblatex-context-undo"
+          label="Undo"
+          oncommand="tblatex.on_undo(event);" />
+        <menuitem id="tblatex-context-undo_all"
+          label="Undo All"
+          oncommand="tblatex.on_undo_all(event);" />
+        <menuitem id="tblatex-context-insert_complex"
+          label="Insert complex LaTeX"
+          oncommand="tblatex.on_insert_complex(event);" />
+        <menuseparator/>
+        <menuitem id="tblatex-context-open_options"
+          label="Options"
+          oncommand="tblatex.on_open_options(event);" />
+      </menupopup>
+    </menu>
+    <menuseparator/>
+  </popup>
   <toolbarpalette id="MsgComposeToolbarPalette">
     <toolbarbutton id="tblatex-button-1"
       class="toolbarbutton-1"
