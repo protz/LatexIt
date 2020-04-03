@@ -81,10 +81,11 @@ var tblatex = {
    * cache which I haven't found a way to invalidate yet. */
   var g_suffix = 1;
 
-  /* Returns [st, src, log] where :
+  /* Returns [st, src, depth, log] where :
    * - st is 0 if everything went ok, 1 if some error was found but the image
    *   was nonetheless generated, 2 if there was a fatal error
    * - src is the local path of the image if generated
+   * - depth is the number of pixels from the bottom of the image to the baseline of the image
    * - log is the log messages generated during the run
    * */
   function run_latex(latex_expr, silent) {
@@ -103,7 +104,7 @@ var tblatex = {
       if (g_image_cache[latex_expr]) {
         if (debug)
           log += "Found a cached image file "+g_image_cache[latex_expr]+", returning\n";
-        return [0, g_image_cache[latex_expr], log+"Image was already generated\n"];
+        return [0, g_image_cache[latex_expr], 0, log+"Image was already generated\n"];
       }
 
       var init_file = function(path) {
@@ -128,12 +129,19 @@ var tblatex = {
       var latex_bin = init_file(prefs.getCharPref("latex_path"));
       if (!latex_bin.exists()) {
         log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
-        return [2, "", log];
+        return [2, "", 0, log];
       }
       var dvipng_bin = init_file(prefs.getCharPref("dvipng_path"));
       if (!dvipng_bin.exists()) {
         log += "Wrong path for dvipng bin. Please set the right path in the options dialog first.\n";
-        return [2, "", log];
+        return [2, "", 0, log];
+      }
+      if (isWindows) {
+        var shell_bin = init_file(env.get("COMSPEC"));
+        var shell_option = "/C";
+      } else {
+        var shell_bin = init_file("/bin/sh");
+        var shell_option = "-c";
       }
 
       var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
@@ -190,22 +198,24 @@ var tblatex = {
       dvi_file.append(temp_file_noext+".dvi");
       if (!dvi_file.exists()) {
         log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
-        return [2, "", log];
+        return [2, "", 0, log];
       }
 
       var png_file = init_file(temp_dir);
       png_file.append(temp_file_noext+".png");
+      var depth_file = init_file(temp_dir);
+      depth_file.append(temp_file_noext+"-depth.txt");
 
-      var dvipng_process = init_process(dvipng_bin);
+      var shell_process = init_process(shell_bin);
       var dpi = prefs.getIntPref("dpi");
-      var dvipng_args = ["-T", "tight", "-D", dpi, "-o", png_file.path, dvi_file.path];
-      dvipng_process.run(true, dvipng_args, dvipng_args.length);
+      var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-D", dpi, "-o", png_file.path, dvi_file.path, ">", depth_file.path];
+      shell_process.run(true, [shell_option, dvipng_args.join(" ")], 2);
       dvi_file.remove(false);
       if (debug)
-        log += "I ran "+dvipng_bin.path+" "+dvipng_args.join(" ")+"\n";
-      if (dvipng_process.exitValue) {
-        log += "dvipng failed with error code "+dvipng_process.exitValue+". Aborting.\n";
-        return [2, "", log];
+        log += "I ran "+shell_bin.path+" -c '"+dvipng_args.join(" ")+"'\n";
+      if (shell_process.exitValue) {
+        log += "dvipng failed with error code "+shell_process.exitValue+". Aborting.\n";
+        return [2, "", 0, log];
       }
       g_image_cache[latex_expr] = png_file.path;
 
@@ -222,17 +232,52 @@ var tblatex = {
         }, 500);
       }
 
+      // Read the depth (distance between base of image and baseline) from the depth file
+      if (!depth_file.exists()) {
+        log += "dvipng did not put out a depth file. Continuing without alignment.\n";
+        return [st, png_file.path, 0, log];
+      }
+
+      // https://developer.mozilla.org/en-US/docs/Archive/Add-ons/Code_snippets/File_I_O#Line_by_line
+      // Open an input stream from file
+      var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].
+                    createInstance(Components.interfaces.nsIFileInputStream);
+      istream.init(depth_file, 0x01, 0444, 0);
+      istream.QueryInterface(Components.interfaces.nsILineInputStream);
+
+      // Read line by line and look for the depth information, which is contained in a line such as
+      //    [1 depth=4]
+      var re = /^\[[0-9] +depth=([0-9]+)\] *$/;
+      var line = {}, hasmore;
+      var depth = 0;
+      do {
+        hasmore = istream.readLine(line);
+        var linematch = line.value.match(re);
+        if (linematch) {
+          // Matching line found, get depth information and exit loop
+          depth = linematch[1];
+          if (debug)
+            log += ("*** Depth is "+depth+"\n");
+          break;
+        }
+      } while(hasmore);
+
+      // Close input stream
+      istream.close();
+      
+      depth_file.remove(false);
+
       // Only delete the temporary file at this point, so that it's left on disk
       //  in case of error.
       temp_file.remove(false);
 
-      return [st, png_file.path, log];
+      return [st, png_file.path, depth, log];
     } catch (e) {
       dump(e+"\n");
       dump(e.stack+"\n");
       log += "Severe error. Missing package?\n";
       log += "We left the .tex file there: "+temp_file.path+", try to run latex on it by yourself...\n";
-      return [2, "", log];
+      return [2, "", 0, log];
     }
   }
 
@@ -304,7 +349,7 @@ var tblatex = {
       if (!silent)
         write_log("*** Found expression "+elt.nodeValue+"\n");
       var latex_expr = replace(template, "__REPLACEME__", elt.nodeValue);
-      var [st, url, log] = run_latex(latex_expr, silent);
+      var [st, url, depth, log] = run_latex(latex_expr, silent);
       if (st || !silent)
         write_log(log);
       if (st == 0 || st == 1) {
@@ -323,7 +368,7 @@ var tblatex = {
           elt.parentNode.removeChild(elt);
 
           img.alt = elt.nodeValue;
-          img.style = "vertical-align: middle";
+          img.style = "vertical-align: -" + depth + "px";
           img.src = reader.result;
 
           push_undo_func(function () {
@@ -350,7 +395,7 @@ var tblatex = {
     if (event.button == 2) return;
     var editor_elt = document.getElementById("content-frame");
     if (editor_elt.editortype != "htmlmail") {
-      alert("Cannot Latexify plain text emails. Use Options > Format to switch to HTML Mail.");
+      alert("Cannot Latexify plain text emails. Start again by and open the message composer window while holding the 'Shift' key.");
       return;
     }
 
@@ -407,7 +452,7 @@ var tblatex = {
       try {
         close_log();
         var write_log = open_log();
-        var [st, url, log] = run_latex(latex_expr);
+        var [st, url, depth, log] = run_latex(latex_expr);
         log = log || "Everything went OK.\n";
         write_log(log);
         if (st == 0 || st == 1) {
@@ -424,7 +469,7 @@ var tblatex = {
 
             img.alt = latex_expr;
             img.title = latex_expr;
-            img.style = "vertical-align: middle";
+            img.style = "vertical-align: -" + depth + "px";
             img.src = reader.result;
 
             push_undo_func(function () {

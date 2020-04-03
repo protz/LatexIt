@@ -1,3 +1,7 @@
+--v0.7.1
+
+- Added alignment of inserted pictures to the text baseline.
+
 --v0.7
 
 - Use latex/dvipng instead of latex/dvips/convert to generate the image file.
