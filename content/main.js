@@ -371,8 +371,8 @@ var tblatex = {
   };
 
   tblatex.on_middleclick = function(event) {
-    // Return on right button
-    if (event.button == 2) return;
+    // Return on all but the middle button
+    if (event.button != 1) return;
 
     if (event.shiftKey) {
       // Undo all
