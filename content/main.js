@@ -309,7 +309,7 @@ var tblatex = {
         write_log(log);
       if (st == 0 || st == 1) {
         if (debug)
-          write_log("--> Adding at cursor position... ");
+          write_log("--> Replacing node... ");
         var img = editor.createElementWithDefaults("img");
         var reader = new FileReader();
         var xhr = new XMLHttpRequest();
@@ -413,7 +413,7 @@ var tblatex = {
         write_log(log);
         if (st == 0 || st == 1) {
           if (debug)
-            write_log("--> Replacing node... ");
+            write_log("--> Inserting at cursor position... ");
           var img = editor.createElementWithDefaults("img");
           var reader = new FileReader();
           var xhr = new XMLHttpRequest();
