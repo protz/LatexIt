@@ -13,9 +13,10 @@
     <toolbarbutton id="tblatex-button-1"
       class="toolbarbutton-1"
       label="Latex It!"
-      tooltiptext="Turn every $$ into a LaTeX image (Ctrl/Meta-Shift-L for silent run)"
+      tooltiptext="Turn every $...$ into a LaTeX image (Ctrl/Meta-Shift-L for silent run)"
       type="menu-button"
       oncommand="tblatex.on_latexit(event, false);"
+      onclick="tblatex.on_middleclick(event);"
       >
       <menupopup>
         <menuitem label="Undo" id="tblatex-button-undo"

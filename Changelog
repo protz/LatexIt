@@ -1,3 +1,10 @@
+--v0.7.1
+
+- Added improvements of LaTeXIt! button:
+  - Button is disabled for plain text composer windows.
+  - Middle click calls 'undo'.
+  - Shift+middle click callse 'undo_all'.
+
 --v0.7
 
 - Use latex/dvipng instead of latex/dvips/convert to generate the image file.

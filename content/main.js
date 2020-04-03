@@ -1,5 +1,6 @@
 var tblatex = {
   on_latexit: null,
+  on_middleclick: null,
   on_undo: null,
   on_undo_all: null,
   on_insert_complex: null,
@@ -350,7 +351,7 @@ var tblatex = {
     if (event.button == 2) return;
     var editor_elt = document.getElementById("content-frame");
     if (editor_elt.editortype != "htmlmail") {
-      alert("Cannot Latexify plain text emails. Use Options > Format to switch to HTML Mail.");
+      alert("Cannot Latexify plain text emails. Start again by and open the message composer window while holding the 'Shift' key.");
       return;
     }
 
@@ -369,7 +370,26 @@ var tblatex = {
     editor.endTransaction();
   };
 
+  tblatex.on_middleclick = function(event) {
+    // Return on right button
+    if (event.button == 2) return;
+
+    if (event.shiftKey) {
+      // Undo all
+      undo_all();
+    } else {
+      // Undo
+      undo();
+    }
+    event.stopPropagation();
+  };
+
   tblatex.on_undo = function (event) {
+    undo();
+    event.stopPropagation();
+  };
+
+  function undo() {
     var editor = GetCurrentEditor();
     editor.beginTransaction();
     try {
@@ -380,10 +400,14 @@ var tblatex = {
       dumpCallStack(e);
     }
     editor.endTransaction();
+  }
+
+  tblatex.on_undo_all = function (event) {
+    undo_all();
     event.stopPropagation();
   };
 
-  tblatex.on_undo_all = function (event) {
+  function undo_all() {
     var editor = GetCurrentEditor();
     editor.beginTransaction();
     try {
@@ -394,7 +418,6 @@ var tblatex = {
       dumpCallStack(e);
     }
     editor.endTransaction();
-    event.stopPropagation();
   };
 
   var g_complex_input = null;
@@ -453,9 +476,22 @@ var tblatex = {
   };
 
   /* Is this even remotey useful ? */
+  /* Yes, because we can disable the toolbar button for plain text messages! */
   window.addEventListener("load",
     function () {
       var tb = document.getElementById("composeToolbar2");
       tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
+
+      // Disable the button for non-html composer windows
+      var btn = document.getElementById("tblatex-button-1");
+      if (btn) {
+        var editor_elt = document.getElementById("content-frame");
+        if (editor_elt.editortype != "htmlmail") {
+          btn.tooltipText = "Start a message in HTML format (by holding the 'Shift' key) to be able to turn every $...$ into a LaTeX image"
+          btn.disabled = true;
+        } else {
+          btn.disabled = false;
+        }
+      }
     }, false);
 })()
