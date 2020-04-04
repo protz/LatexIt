@@ -10,7 +10,7 @@
       />
   </keyset>
   <popup id="msgComposeContext">
-    <menuseparator/>
+    <menuseparator />
     <menuitem id="tblatex-context"
       label="LaTeX It!"
       class="menuitem-iconic"
@@ -24,12 +24,13 @@
         <menuitem id="tblatex-context-undo_all"
           label="Undo All"
           oncommand="tblatex.on_undo_all(event);" />
+        <menuseparator />
         <menuitem id="tblatex-context-insert_complex"
           label="Insert complex LaTeX"
           oncommand="tblatex.on_insert_complex(event);" />
       </menupopup>
     </menu>
-    <menuseparator/>
+    <menuseparator />
   </popup>
   <toolbarpalette id="MsgComposeToolbarPalette">
     <toolbarbutton id="tblatex-button-1"
