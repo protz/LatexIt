@@ -1,6 +1,8 @@
 --v0.7.1
 
 - Fixed the insertion of complex LaTeX.
+- Select the insertion marker when opening the insert complex LaTeX dialog.
+- Cleaned up the options dialog.
 
 --v0.7
 

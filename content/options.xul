@@ -10,7 +10,8 @@
 >
   <script type="application/javascript" src="chrome://tblatex/content/options.js" />
  
-  <vbox>
+  <groupbox>
+    <label value="Executables:" style="header; font-weight: bold;" />
     <hbox>
       <label control="latex_textbox" value="Path to latex executable" />
       <textbox preference="tblatex.latex_path" id="latex_textbox" />
@@ -21,36 +22,39 @@
       <textbox preference="tblatex.dvipng_path" id="dvipng_textbox" />
       <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('textbox')[1], 'dvipng');" />
     </hbox>
+    <label style="text-decoration: underline; color: navy; cursor: pointer" value="Open the autodetection dialog"
+      onclick="open_autodetect();" />
+  </groupbox>
+  <separator />
+  <groupbox>
+    <label value="Configurations:" style="header; font-weight: bold;" />
     <hbox>
       <label control="dpi_textbox" value="Resolution (dpi)" />
       <textbox preference="tblatex.dpi" id="dpi_textbox" />
-      <spacer />
     </hbox>
     <hbox>
       <label control="log_checkbox" value="Generate a log report" />
       <checkbox preference="tblatex.log" id="log_checkbox" />
-      <spacer />
     </hbox>
     <hbox>
       <label control="debug_checkbox" value="Generate debug info" />
       <checkbox preference="tblatex.debug" id="debug_checkbox" />
-      <spacer />
     </hbox>
-    <label style="text-decoration: underline; color: navy; margin-top: 2em;
-      cursor: pointer" value="Open the autodetection dialog"
-      onclick="open_autodetect();" />
-  </vbox>
-  
-  <vbox>
+  </groupbox>
+  <separator />
+  <groupbox>
+    <label value="Template:" style="header; font-weight: bold;" />
     <hbox>
-      <label control="template_textbox" value="Template to use to generate LaTeX parts "/>
+      <label control="template_textbox" value="Template to use to generate LaTeX parts."/>
+      <spacer flex="1" />
       <label style="text-decoration: underline; color: navy; cursor: pointer" value="Help ?"
         onclick="window.openDialog('chrome://tblatex/content/help.html', '',
           'all,chrome,dialog=no,status,toolbar,width=640,height=480');" />
     </hbox>
+    <label value="Use __REPLACEME__ as a place marker, if you want to have it automatically highlighted." />
     <html:textarea preference="tblatex.template" id="template_textbox" multiline="true"
       rows="12" />
-  </vbox>
+  </groupbox>
 
   <script
      src="chrome://global/content/preferencesBindings.js"
