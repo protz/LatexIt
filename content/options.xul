@@ -51,7 +51,7 @@
         onclick="window.openDialog('chrome://tblatex/content/help.html', '',
           'all,chrome,dialog=no,status,toolbar,width=640,height=480');" />
     </hbox>
-    <label value="Use __REPLACEME__ as a place marker, if you want to have it automatically highlighted." />
+    <label value="Use __REPLACE_ME__ as a place marker, if you want to have it automatically highlighted." />
     <html:textarea preference="tblatex.template" id="template_textbox" multiline="true"
       rows="12" />
   </groupbox>

@@ -3,6 +3,8 @@
 - Fixed the insertion of complex LaTeX.
 - Select the insertion marker when opening the insert complex LaTeX dialog.
 - Cleaned up the options dialog.
+- Replaced place holder __REPLACEME__ with __REPLACE_ME__, which IMHO is easier
+  to the eye.
 
 --v0.7
 

@@ -4,7 +4,7 @@ function on_ok() {
 }
 
 window.addEventListener("load", function (event) {
-  var marker = "__REPLACEME__";
+  var marker = "__REPLACE_ME__";
   var textarea = document.getElementById("tblatex-expr");
   textarea.value = window.arguments[1];
   var start = textarea.value.indexOf(marker);
