@@ -87,7 +87,7 @@ var tblatex = {
    * - src is the local path of the image if generated
    * - log is the log messages generated during the run
    * */
-  function run_latex(latex_expr, silent) {
+  function run_latex(latex_expr, font_px) {
     var log = "";
     var st = 0;
     var temp_file;
@@ -100,10 +100,10 @@ var tblatex = {
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
       }
 
-      if (g_image_cache[latex_expr]) {
+      if (g_image_cache[latex_expr+font_px]) {
         if (debug)
-          log += "Found a cached image file "+g_image_cache[latex_expr]+", returning\n";
-        return [0, g_image_cache[latex_expr], log+"Image was already generated\n"];
+          log += "Found a cached image file "+g_image_cache[latex_expr+font_px]+", returning\n";
+        return [0, g_image_cache[latex_expr+font_px], 0, log+"Image was already generated\n"];
       }
 
       var init_file = function(path) {
@@ -196,8 +196,45 @@ var tblatex = {
       var png_file = init_file(temp_dir);
       png_file.append(temp_file_noext+".png");
 
+      // Output resolution to fit font size (see 'man dvipng', option -D) for LaTeX default font height 10 pt
+      //
+      //   -D num
+      //       Set the output resolution, both horizontal and vertical, to num dpi
+      //       (dots per inch).
+      //
+      //       One may want to adjust this to fit a certain text font size (e.g.,
+      //       on a web page), and for a text font height of font_px pixels (in
+      //       Mozilla) the correct formula is
+      //
+      //               <dpi> = <font_px> * 72.27 / 10 [px * TeXpt/in / TeXpt]
+      //
+      //       The last division by ten is due to the standard font height 10pt in
+      //       your document, if you use 12pt, divide by 12. Unfortunately, some
+      //       proprietary browsers have font height in pt (points), not pixels.
+      //       You have to rescale that to pixels, using the screen resolution
+      //       (default is usually 96 dpi) which means the formula is
+      //
+      //               <font_px> = <font_pt> * 96 / 72 [pt * px/in / (pt/in)]
+      //
+      //      On some high-res screens, the value is instead 120 dpi. Good luck!
+      //
+      // Looks like Thunderbird is one of the "proprietary browsers", at least if I assumed that
+      // the font size returned is in points (and not pixels) I get the right size with a screen
+      // resolution of 96.
+      if (prefs.getBoolPref("autodpi") && font_px) {
+        var font_size = parseFloat(font_px);
+        if (debug)
+          log += "*** Surrounding text has font size of "+font_px+"\n";
+      } else {
+        var font_size = prefs.getIntPref("font_px");
+        if (debug)
+          log += "*** Using font size "+font_size+"px set in preferences\n";
+      }
+      var dpi = font_size * 72.27 / 10;
+      if (debug)
+        log += "*** Calculated resolution is "+dpi+" dpi\n";
+
       var dvipng_process = init_process(dvipng_bin);
-      var dpi = prefs.getIntPref("dpi");
       var dvipng_args = ["-T", "tight", "-D", dpi, "-o", png_file.path, dvi_file.path];
       dvipng_process.run(true, dvipng_args, dvipng_args.length);
       dvi_file.remove(false);
@@ -207,7 +244,7 @@ var tblatex = {
         log += "dvipng failed with error code "+dvipng_process.exitValue+". Aborting.\n";
         return [2, "", log];
       }
-      g_image_cache[latex_expr] = png_file.path;
+      g_image_cache[latex_expr+font_px] = png_file.path;
 
       if (debug) {
         log += ("*** Status is "+st+"\n");
@@ -304,7 +341,9 @@ var tblatex = {
       if (!silent)
         write_log("*** Found expression "+elt.nodeValue+"\n");
       var latex_expr = replace(template, "__REPLACEME__", elt.nodeValue);
-      var [st, url, log] = run_latex(latex_expr, silent);
+      // Font size in pixels
+      var font_px = window.getComputedStyle(elt.parentElement, null).getPropertyValue('font-size');
+      var [st, url, depth, log] = run_latex(latex_expr, font_px);
       if (st || !silent)
         write_log(log);
       if (st == 0 || st == 1) {
@@ -401,13 +440,21 @@ var tblatex = {
 
   tblatex.on_insert_complex = function (event) {
     var editor = GetCurrentEditor();
-    var f = function (latex_expr) {
+    var f = function (latex_expr, autodpi, font_size) {
+      var debug = prefs.getBoolPref("debug");
       g_complex_input = latex_expr;
       editor.beginTransaction();
       try {
         close_log();
         var write_log = open_log();
-        var [st, url, log] = run_latex(latex_expr);
+        if (autodpi) {
+          // Font size at cursor position
+          var elt = editor.selection.anchorNode.parentElement;
+          var font_px = window.getComputedStyle(elt).getPropertyValue('font-size');
+        } else {
+          var font_px = font_size+"px";
+        }
+        var [st, url, depth, log] = run_latex(latex_expr, font_px);
         log = log || "Everything went OK.\n";
         write_log(log);
         if (st == 0 || st == 1) {
@@ -443,7 +490,8 @@ var tblatex = {
       editor.endTransaction();
     };
     var template = g_complex_input || prefs.getCharPref("template");
-    window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome", f, template);
+    var selection = editor.selection.toString();
+    window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome", f, template, selection);
     event.stopPropagation();
   };
 

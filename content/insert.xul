@@ -15,11 +15,20 @@
     <dialogheader title="Latex It!" description="Insert a complex LaTeX expression"/>
     <groupbox>
       <description>Edit the default document below and the visible parts will be
-      inserted in your email</description>
+      inserted in your message:</description>
       <html:textarea id="tblatex-expr" multiline="true" rows="24" />
+    <hbox align="baseline">
+      <checkbox id="autodpi-checkbox" oncommand="on_autodpi();"
+        label="Adapt image resolution automatically to font size" />
+      <spacer flex="1" />
+      <label control="fontpx" id="fontpx-label" value="Font size:" />
+      <textbox id="fontpx"
+        type="number" min="1" decimalplaces="0" increment="1" size="2" />
+      <label control="fontpx" id="fontpx-unit" value="px" />
+    </hbox>
+  </groupbox>
       <hbox>
         <button label="Load default template" oncommand="on_reset();" />
         <spacer flex="1" />
       </hbox>
-   </groupbox>
 </dialog>
