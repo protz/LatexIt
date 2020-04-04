@@ -1,12 +1,11 @@
 --v0.7.1
 
--- Changed 'resolution' to 'px' (font height).
-- Insert image in font size of surrounding text (if the 'autodpi'
-  configuration is set, otherwise in the configured font height).
-- When inserting complex LaTeX, the size can be automatically set
-  to the font size of the surrounding text or to a manually set
-  font size.
-- Beautified preferences dialog.
+- Added autoscaling of images to font size (can be switched off in the
+  preferences, where a size can be manually set).
+- When inserting a complex LaTeX, the size can either be automatically
+  calculated from the surrounding text or set manually.
+- Changed 'resolution' to 'font size' (in px).- Changed 'resolution' to 'px'
+  (font height).
 
 --v0.7
 

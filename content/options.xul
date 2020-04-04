@@ -44,7 +44,7 @@
     </hbox>
     <hbox>
       <checkbox preference="tblatex.debug" id="debug_checkbox"
-        label="debug_checkbox" value="Generate debug info" />
+        label="Generate debug info" />
     </hbox>
   </groupbox>
   <separator />
