@@ -458,4 +458,16 @@ var tblatex = {
       var tb = document.getElementById("composeToolbar2");
       tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
     }, false);
+
+  window.addEventListener("unload",
+      // Remove all cached images on closing the composer window
+    function() {
+      for (var key in g_image_cache) {
+        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
+        try {
+          f.initWithPath(g_image_cache[key]);
+          f.remove(false);
+        } catch (e) { }
+      }
+    }, false);
 })()
