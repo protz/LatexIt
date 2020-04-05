@@ -39,7 +39,7 @@
       <label control="fontpx_textbox" value="px" />
     </hbox>
     <hbox>
-      <checkbox preference="tblatex.log" id="log_checkbox"
+      <checkbox preference="tblatex.log" id="log_checkbox" oncommand="on_log();"
         label="Generate a log report" />
     </hbox>
     <hbox>
