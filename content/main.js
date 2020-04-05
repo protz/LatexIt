@@ -483,13 +483,13 @@ var tblatex = {
 
   // Ctrl-Enter
   var tblatex_SendMessageWithCheck_orig = SendMessageWithCheck;
-  SendMessage = function() {
+  SendMessageWithCheck = function() {
     if (check_log_report())
       tblatex_SendMessageWithCheck_orig.apply(this, arguments);
   }
 
   var tblatex_SendMessageLater_orig = SendMessageLater;
-  SendMessage = function() {
+  SendMessageLater = function() {
     if (check_log_report())
       tblatex_SendMessageLater_orig.apply(this, arguments);
   }
