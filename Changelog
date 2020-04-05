@@ -1,3 +1,7 @@
+--v0.7.1
+
+- Check before sending, if a LatexIt! report exists in the message.
+
 --v0.7
 
 - Use latex/dvipng instead of latex/dvips/convert to generate the image file.

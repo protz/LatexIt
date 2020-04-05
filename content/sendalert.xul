@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<dialog id="tblatex-dialog-sendalert"
+  title="Send with LatexIt! report"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  buttons=",">
+  <script type="application/javascript" src="chrome://tblatex/content/sendalert.js" />
+
+  <description>There exists a LatexIt! report in your message!</description>
+  <separator />
+  <hbox>
+    <button label="Cancel" oncommand="on_cancel();" />
+    <spacer flex="1" />
+    <button label="Remove report and send" oncommand="on_removeandsend();" />
+    <spacer flex="1" />
+    <button label="Send" oncommand="on_send();" />
+  </hbox>
+</dialog>
