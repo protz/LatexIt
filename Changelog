@@ -20,6 +20,7 @@
 - When inserting a complex LaTeX, the size can either be automatically
   calculated from the surrounding text or set manually.
 - Use 'font size' (in px) instead of 'resolution'.
+- Check before sending, if a LatexIt! report exists in the message.
 
 --v0.7
 

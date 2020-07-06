@@ -571,6 +571,54 @@ var tblatex = {
     event.stopPropagation();
   };
 
+  tblatex.on_open_options = function (event) {
+    window.openDialog("chrome://tblatex/content/options.xul", "", "");
+    event.stopPropagation();
+  };
+
+  function check_log_report () {
+    // code from close_log();
+    var editor = document.getElementById("content-frame");
+    var edocument = editor.contentDocument;
+    var div = edocument.getElementById("tblatex-log");
+    if (div) {
+      var retVals = {action: -1};
+      window.openDialog("chrome://tblatex/content/sendalert.xul", "", "chrome,modal,dialog,centerscreen", retVals);
+      switch (retVals.action) {
+        case 0:
+          div.parentNode.removeChild(div);
+          return true;
+        case 1:
+          return true;
+        default:
+          return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
+  // Override original send functions (this follows the approach from the "Check and Send" add-on
+  var tblatex_SendMessage_orig = SendMessage;
+  SendMessage = function() {
+    if (check_log_report())
+      tblatex_SendMessage_orig.apply(this, arguments);
+  }
+
+  // Ctrl-Enter
+  var tblatex_SendMessageWithCheck_orig = SendMessageWithCheck;
+  SendMessageWithCheck = function() {
+    if (check_log_report())
+      tblatex_SendMessageWithCheck_orig.apply(this, arguments);
+  }
+
+  var tblatex_SendMessageLater_orig = SendMessageLater;
+  SendMessageLater = function() {
+    if (check_log_report())
+      tblatex_SendMessageLater_orig.apply(this, arguments);
+  }
+
+  /* Is this even remotey useful ? */
   /* Yes, because we can disable the toolbar button and menu items for plain text messages! */
   window.addEventListener("load",
     function () {
