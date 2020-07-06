@@ -11,5 +11,11 @@
   "description": "Automatically change $\\LaTeX$ into images in your HTML mails.",
   "version": "0.7.1",
   "homepage_url": "https://github.com/protz/LatexIt/wiki",
-  "legacy": true
+  "legacy": {
+    "type": "xul",
+    "options": {
+      "page": "chrome://tblatex/content/options.xul",
+      "open_in_tab": false
+    }
+  }
 }

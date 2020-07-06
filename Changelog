@@ -1,5 +1,25 @@
 --v0.7.1
 
+- Fixed the insertion of complex LaTeX (Bug #43).
+- Select the insertion marker when opening the insert complex LaTeX dialog.
+- Cleaned up the options dialog.
+- Replaced place holder __REPLACEME__ with __REPLACE_ME__, which IMHO is easier
+  to the eye.
+- Added alignment of inserted pictures to the text baseline (Bug #36).
+- Added improvements of LaTeXIt! button:
+  - Button is disabled for plain text composer windows (Bug #48).
+  - Middle click calls 'undo' (Bug #2).
+  - Shift+middle click calls 'undo_all'.
+- Added context menu to composer window (Bug #49).
+- Added LaTeXIt! to the Add-ons menu to access the preferences (Bug #42).
+- Removed the configuration item from toolbar and context menues, because they
+  are not needed anymore.
+- Delete all cached images when the composer window is closed (Bug #44).
+- Added autoscaling of images to font size (can be switched off in the
+  preferences, where a size can be manually set).
+- When inserting a complex LaTeX, the size can either be automatically
+  calculated from the surrounding text or set manually.
+- Use 'font size' (in px) instead of 'resolution'.
 - Check before sending, if a LatexIt! report exists in the message.
 
 --v0.7
