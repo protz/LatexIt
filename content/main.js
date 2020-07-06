@@ -435,7 +435,7 @@ var tblatex = {
     if (event.button == 2) return;
     var editor_elt = document.getElementById("content-frame");
     if (editor_elt.editortype != "htmlmail") {
-      alert("Cannot Latexify plain text emails. Start again by and open the message composer window while holding the 'Shift' key.");
+      alert("Cannot Latexify plain text emails. Start again by opening the message composer window while holding the 'Shift' key.");
       return;
     }
 
@@ -601,6 +601,7 @@ var tblatex = {
         try {
           f.initWithPath(g_image_cache[key]);
           f.remove(false);
+          delete g_image_cache[key];
         } catch (e) { }
       }
     }, false);
