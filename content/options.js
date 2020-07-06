@@ -39,3 +39,11 @@ function open_autodetect() {
   window.openDialog('chrome://tblatex/content/firstrun.html', '',
             'all,chrome,dialog=no,status,toolbar,width=640,height=480', add_links);
 }
+
+window.addEventListener("load", function (event) {
+  on_log();
+}, false);
+
+function on_log() {
+  document.getElementById("debug_checkbox").disabled = !document.getElementById("log_checkbox").checked;
+}
