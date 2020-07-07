@@ -21,6 +21,8 @@
   calculated from the surrounding text or set manually.
 - Use 'font size' (in px) instead of 'resolution'.
 - Check before sending, if a LatexIt! report exists in the message.
+- Display an error message, if the place holder "__REPLACE_ME__" cannot be found in the template. (https://github.com/protz/LatexIt/pull/53#discussion_r450431520)
+- Added "!!!" in front of error messages.
 
 --v0.7
 

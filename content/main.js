@@ -114,7 +114,7 @@ var tblatex = {
           f.initWithPath(path);
           return f;
         } catch (e) {
-          log += "This path is malformed: "+path+".\n"+
+          log += "!!! This path is malformed: "+path+".\n"+
             "Possible reasons include: you didn't setup the paths properly in the addon's options.\n";
           return {
             exists: function () { return false; }
@@ -129,14 +129,41 @@ var tblatex = {
 
       var latex_bin = init_file(prefs.getCharPref("latex_path"));
       if (!latex_bin.exists()) {
-        log += "Wrong path for latex bin. Please set the right path in the options dialog first.\n";
+        log += "!!! Wrong path for latex bin. Please set the right path in the options dialog first.\n";
         return [2, "", 0, log];
       }
       var dvipng_bin = init_file(prefs.getCharPref("dvipng_path"));
       if (!dvipng_bin.exists()) {
-        log += "Wrong path for dvipng bin. Please set the right path in the options dialog first.\n";
+        log += "!!! Wrong path for dvipng bin. Please set the right path in the options dialog first.\n";
         return [2, "", 0, log];
       }
+      // Since version 0.7.1 we support the alignment of the inserted pictures
+      // to the text baseline, which works as follows (see also
+      // https://github.com/protz/LatexIt/issues/36):
+      //   1. Have the LaTeX package preview available.
+      //   2. Insert \usepackage[active,textmath]{preview} into the preamble of
+      //      the LaTeX document.
+      //   3. Run dvipng with the option --depth.
+      //   4. Parse the output of the command for the depth value (a typical
+      //      output is:
+      //        This is dvipng 1.15 Copyright 2002-2015 Jan-Ake Larsson
+      //        [1 depth=4]
+      //   5. Return the depth value (in the above case 4) from
+      //      'main.js:run_latex()' in addition to the values already returned.
+      //   6. In 'content/main.js' replace all
+      //      'img.style = "vertical-align: middle"' with
+      //      'img.style = "vertical-align: -<depth>px"' (where <depth> is the
+      //      value returned by dvipng and needs a - sign in front of it).
+      // The problem lies in the step 4, because it looks like that it is not
+      // possible to capture the output of an external command in Thunderbird
+      // (https://stackoverflow.com/questions/10215643/how-to-execute-a-windows-command-from-firefox-addon#answer-10216452).
+      // However it is possible to redirect the standard output into a temporary
+      // file and parse that file: You need to call the command in an external
+      // shell (or LatexIt! must call a special script doing the redirection,
+      // which should also be avoided, because it requires installing this
+      // script file).
+      // Here we get the shell binary and the command line option to call an
+      // external program.
       if (isWindows) {
         var shell_bin = init_file(env.get("COMSPEC"));
         var shell_option = "/C";
@@ -198,7 +225,7 @@ var tblatex = {
       var dvi_file = init_file(temp_dir);
       dvi_file.append(temp_file_noext+".dvi");
       if (!dvi_file.exists()) {
-        log += "LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
+        log += "!!! LaTeX did not output a .dvi file, something definitely went wrong. Aborting.\n";
         return [2, "", 0, log];
       }
 
@@ -252,7 +279,7 @@ var tblatex = {
       if (debug)
         log += "I ran "+shell_bin.path+" -c '"+dvipng_args.join(" ")+"'\n";
       if (shell_process.exitValue) {
-        log += "dvipng failed with error code "+shell_process.exitValue+". Aborting.\n";
+        log += "!!! dvipng failed with error code "+shell_process.exitValue+". Aborting.\n";
         return [2, "", 0, log];
       }
       g_image_cache[latex_expr+font_px] = png_file.path;
@@ -313,7 +340,7 @@ var tblatex = {
     } catch (e) {
       dump(e+"\n");
       dump(e.stack+"\n");
-      log += "Severe error. Missing package?\n";
+      log += "!!! Severe error. Missing package?\n";
       log += "We left the .tex file there: "+temp_file.path+", try to run latex on it by yourself...\n";
       return [2, "", 0, log];
     }
@@ -364,13 +391,18 @@ var tblatex = {
   }
 
   function replace(string, pattern, replacement) {
+    var log = "";
     var i = string.indexOf(pattern);
-    if (i < 0)
-      return;
+    if (i < 0) {
+      log += "\n!!! Could not find the place marker '__REPLACE_ME__' in your template.\n";
+      log += "This would be the place, where your LaTeX expression is inserted.\n";
+      log += "Please edit your template and add this marker.\n";
+      return [, log];
+    }
     var l = pattern.length;
     var p1 = string.substring(0, i);
     var p2 = string.substring(i+l);
-    return p1 + replacement + p2;
+    return [p1 + replacement + p2, log];
   }
 
   /* replaces each latex text node with the corresponding generated image */
@@ -386,7 +418,9 @@ var tblatex = {
       var elt = nodes[i];
       if (!silent)
         write_log("*** Found expression "+elt.nodeValue+"\n");
-      var latex_expr = replace(template, "__REPLACE_ME__", elt.nodeValue);
+      var [latex_expr, log] = replace(template, "__REPLACE_ME__", elt.nodeValue);
+      if (log)
+        write_log(log);
       // Font size in pixels
       var font_px = window.getComputedStyle(elt.parentElement, null).getPropertyValue('font-size');
       var [st, url, depth, log] = run_latex(latex_expr, font_px);
