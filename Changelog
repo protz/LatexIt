@@ -23,6 +23,9 @@
 - Check before sending, if a LatexIt! report exists in the message.
 - Display an error message, if the place holder "__REPLACE_ME__" cannot be found in the template. (https://github.com/protz/LatexIt/pull/53#discussion_r450431520)
 - Added "!!!" in front of error messages.
+- Use "\usepackage[utf8x]{inputenc}" instead of "\usepackage[utf8]{inputenc}",
+  which should remove the (Debian) dependency of package texlive-latex-extra
+  (Bug #8).
 
 --v0.7
 
