@@ -393,10 +393,11 @@ var tblatex = {
   function replace_marker(string, replacement) {
     var marker = "__REPLACE_ME__";
     var oldmarker = "__REPLACEME__";
-    var l = marker.length;
+    var len = marker.length;
     var log = "";
     var i = string.indexOf(marker);
     if (i < 0) {
+      // Look for old marker
       i = string.indexOf(oldmarker);
       if (i < 0) {
         log += "\n!!! Could not find the place marker '" + marker + "' in your template.\n";
@@ -404,12 +405,10 @@ var tblatex = {
         log += "Please edit your template and add this marker.\n";
         return [, log];
       } else {
-        log += "\n!!! Found the old place marker '" + oldmarker + "' in your template.\n";
-        log += "Please replace it with the new marker '" + marker + "'.\n"}
-        var l = oldmarker.length;
+        len = oldmarker.length;
     }
     var p1 = string.substring(0, i);
-    var p2 = string.substring(i+l);
+    var p2 = string.substring(i+len);
     return [p1 + replacement + p2, log];
   }
 
