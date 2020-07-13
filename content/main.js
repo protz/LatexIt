@@ -406,6 +406,7 @@ var tblatex = {
         return [, log];
       } else {
         len = oldmarker.length;
+      }
     }
     var p1 = string.substring(0, i);
     var p2 = string.substring(i+len);
