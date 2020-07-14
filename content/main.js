@@ -390,18 +390,26 @@ var tblatex = {
       div.parentNode.removeChild(div);
   }
 
-  function replace(string, pattern, replacement) {
+  function replace_marker(string, replacement) {
+    var marker = "__REPLACE_ME__";
+    var oldmarker = "__REPLACEME__";
+    var len = marker.length;
     var log = "";
-    var i = string.indexOf(pattern);
+    var i = string.indexOf(marker);
     if (i < 0) {
-      log += "\n!!! Could not find the place marker '__REPLACE_ME__' in your template.\n";
-      log += "This would be the place, where your LaTeX expression is inserted.\n";
-      log += "Please edit your template and add this marker.\n";
-      return [, log];
+      // Look for old marker
+      i = string.indexOf(oldmarker);
+      if (i < 0) {
+        log += "\n!!! Could not find the place marker '" + marker + "' in your template.\n";
+        log += "This would be the place, where your LaTeX expression is inserted.\n";
+        log += "Please edit your template and add this marker.\n";
+        return [, log];
+      } else {
+        len = oldmarker.length;
+      }
     }
-    var l = pattern.length;
     var p1 = string.substring(0, i);
-    var p2 = string.substring(i+l);
+    var p2 = string.substring(i+len);
     return [p1 + replacement + p2, log];
   }
 
@@ -418,7 +426,7 @@ var tblatex = {
       var elt = nodes[i];
       if (!silent)
         write_log("*** Found expression "+elt.nodeValue+"\n");
-      var [latex_expr, log] = replace(template, "__REPLACE_ME__", elt.nodeValue);
+      var [latex_expr, log] = replace_marker(template, elt.nodeValue);
       if (log)
         write_log(log);
       // Font size in pixels
