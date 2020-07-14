@@ -11,8 +11,8 @@
     
     <dialogheader title="Latex It!" description="Insert a complex LaTeX expression"/>
     <groupbox>
-      <description>Edit the default document below and the visible parts will be
-      inserted in your message:</description>
+      <description>Edit the LaTeX document below, which will be run through LaTeX.
+        After which, the visible parts will be inserted in your message:</description>
       <html:textarea id="tblatex-expr" multiline="true" rows="24" />
     <hbox align="baseline">
       <checkbox id="autodpi-checkbox" oncommand="on_autodpi();"
