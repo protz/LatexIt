@@ -400,9 +400,9 @@ var tblatex = {
       // Look for old marker
       i = string.indexOf(oldmarker);
       if (i < 0) {
-        log += "\n!!! Could not find the place marker '" + marker + "' in your template.\n";
+        log += "\n!!! Could not find the placeholder '" + marker + "' in your template.\n";
         log += "This would be the place, where your LaTeX expression is inserted.\n";
-        log += "Please edit your template and add this marker.\n";
+        log += "Please edit your template and add this placeholder.\n";
         return [, log];
       } else {
         len = oldmarker.length;
