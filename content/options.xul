@@ -57,7 +57,7 @@
         onclick="window.openDialog('chrome://tblatex/content/help.html', '',
           'all,chrome,dialog=no,status,toolbar,width=640,height=480');" />
     </hbox>
-    <description>Use __REPLACE_ME__ as a place marker for your LaTeX expression.</description>
+    <description>Use __REPLACE_ME__ as a placeholder for your LaTeX expression.</description>
     <html:textarea preference="tblatex.template" id="template_textbox" multiline="true"
       rows="12" />
   </groupbox>

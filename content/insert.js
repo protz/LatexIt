@@ -32,7 +32,14 @@ var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 
 function populate(template, selection) {
   var marker = "__REPLACE_ME__";
+  var oldmarker = "__REPLACEME__";
   var start = template.indexOf(marker);
+  if (start < 0) {
+    start = string.indexOf(oldmarker);
+    if (start > -1) {
+      marker = oldmarker;
+    } 
+  }
   if (start > -1 && selection) {
     // Replace marker with selection
     template = template.substring(0, start) + selection + template.substring(start+marker.length)
