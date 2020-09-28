@@ -3,13 +3,14 @@
   "applications": {
     "gecko": {
       "id": "tblatex@xulforum.org",
-      "strict_min_version": "68.0a1"
+      "strict_min_version": "68.0a1",
+      "strict_max_version": "73.*"
     }
   },
   "author": "Jonathan Protzenko",
   "name": "LaTeX It!",
   "description": "Automatically change $\\LaTeX$ into images in your HTML mails.",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "homepage_url": "https://github.com/protz/LatexIt/wiki",
   "legacy": {
     "type": "xul",

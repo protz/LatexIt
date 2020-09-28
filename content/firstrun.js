@@ -3,7 +3,6 @@
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
       .getService(Components.interfaces.nsIPrefService)
       .getBranch("tblatex.");
-    var convert_path = prefs.getCharPref("convert_path");
     if (prefs.getIntPref("firstrun") == 3)
       return;
 
