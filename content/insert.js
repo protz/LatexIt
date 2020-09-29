@@ -35,10 +35,10 @@ function populate(template, selection) {
   var oldmarker = "__REPLACEME__";
   var start = template.indexOf(marker);
   if (start < 0) {
-    start = string.indexOf(oldmarker);
+    start = template.indexOf(oldmarker);
     if (start > -1) {
       marker = oldmarker;
-    } 
+    }
   }
   if (start > -1 && selection) {
     // Replace marker with selection
