@@ -1,5 +1,4 @@
 (function () {
-  function on_load() {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
       .getService(Components.interfaces.nsIPrefService)
       .getBranch("tblatex.");
@@ -15,6 +14,4 @@
       openTab("contentTab", { contentPage: "chrome://tblatex/content/firstrun.html" });
     else
       openDialog("chrome://tblatex/content/firstrun.html", "", "width=640,height=480");
-  };
-  window.addEventListener("load", on_load, false);
 })();

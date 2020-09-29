@@ -61,7 +61,10 @@ function onLoad(activatedWhileWindowOpen) {
       </menupopup>
     </toolbarbutton>
   </toolbarpalette>`);
+
+  window.tblatex.on_load();
 }
 
 function onUnload(deactivatedWhileWindowOpen) {
+  window.tblatex.on_unload();
 }

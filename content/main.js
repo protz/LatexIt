@@ -4,7 +4,9 @@ var tblatex = {
   on_undo: null,
   on_undo_all: null,
   on_insert_complex: null,
-  on_open_options: null
+  on_open_options: null,
+  on_load: null,
+  on_unload: null
 };
 
 (function () {
@@ -640,59 +642,64 @@ var tblatex = {
     }
   }
 
-  // Override original send functions (this follows the approach from the "Check and Send" add-on
-  var tblatex_SendMessage_orig = SendMessage;
-  SendMessage = function() {
-    if (check_log_report())
-      tblatex_SendMessage_orig.apply(this, arguments);
-  }
+  
 
-  // Ctrl-Enter
-  var tblatex_SendMessageWithCheck_orig = SendMessageWithCheck;
-  SendMessageWithCheck = function() {
-    if (check_log_report())
-      tblatex_SendMessageWithCheck_orig.apply(this, arguments);
-  }
-
-  var tblatex_SendMessageLater_orig = SendMessageLater;
-  SendMessageLater = function() {
-    if (check_log_report())
-      tblatex_SendMessageLater_orig.apply(this, arguments);
-  }
-
+  
   /* Is this even remotey useful ? */
   /* Yes, because we can disable the toolbar button and menu items for plain text messages! */
-  window.addEventListener("load",
-    function () {
-      var tb = document.getElementById("composeToolbar2");
-      tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
+  tblatex.on_load = function () {
+    // Override original send functions (this follows the approach from the "Check and Send" add-on
+    tblatex.SendMessage_orig = SendMessage;
+    SendMessage = function() {
+      if (check_log_report())
+        tblatex.SendMessage_orig.apply(this, arguments);
+    }
 
-      // Disable the button and menu for non-html composer windows
-      var editor_elt = document.getElementById("content-frame");
-      if (editor_elt.editortype != "htmlmail") {
-      var btn = document.getElementById("tblatex-button-1");
-      if (btn) {
-          btn.tooltipText = "Start a message in HTML format (by holding the 'Shift' key) to be able to turn every $...$ into a LaTeX image"
-          btn.disabled = true;
-        }
-        for (var id of ["tblatex-context", "tblatex-context-menu"]) {
-            var menu = document.getElementById(id);
-            if (menu)
-                menu.disabled = true;
-        }
-      }
-    }, false);
+    // Ctrl-Enter
+    tblatex.SendMessageWithCheck_orig = SendMessageWithCheck;
+    SendMessageWithCheck = function() {
+      if (check_log_report())
+        tblatex.SendMessageWithCheck_orig.apply(this, arguments);
+    }
 
-  window.addEventListener("unload",
-    // Remove all cached images on closing the composer window
-    function() {
-      for (var key in g_image_cache) {
-        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
-        try {
-          f.initWithPath(g_image_cache[key]);
-          f.remove(false);
-          delete g_image_cache[key];
-        } catch (e) { }
+    tblatex.SendMessageLater_orig = SendMessageLater;
+    SendMessageLater = function() {
+      if (check_log_report())
+        tblatex.SendMessageLater_orig.apply(this, arguments);
+    }
+
+    var tb = document.getElementById("composeToolbar2");
+    tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
+
+    // Disable the button and menu for non-html composer windows
+    var editor_elt = document.getElementById("content-frame");
+    if (editor_elt.editortype != "htmlmail") {
+    var btn = document.getElementById("tblatex-button-1");
+    if (btn) {
+        btn.tooltipText = "Start a message in HTML format (by holding the 'Shift' key) to be able to turn every $...$ into a LaTeX image"
+        btn.disabled = true;
       }
-    }, false);
+      for (var id of ["tblatex-context", "tblatex-context-menu"]) {
+          var menu = document.getElementById(id);
+          if (menu)
+              menu.disabled = true;
+      }
+    }
+  };
+
+  tblatex.on_unload = function() {
+    // Revert Patch
+    SendMessage = tblatex.SendMessage_orig;
+    SendMessageWithCheck = tblatex.SendMessageWithCheck_orig;
+    SendMessageLater = tblatex.SendMessageLater_orig;
+
+    for (var key in g_image_cache) {
+      var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
+      try {
+        f.initWithPath(g_image_cache[key]);
+        f.remove(false);
+        delete g_image_cache[key];
+      } catch (e) { }
+    }
+  };
 })()
