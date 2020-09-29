@@ -1,9 +1,12 @@
-<?xml version="1.0" ?>
-<?xml-stylesheet href="chrome://tblatex/skin/overlay.css" type="text/css" ?>
-<overlay id="tblatex-messenger-overlay"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:html="http://www.w3.org/1999/xhtml">
-  <script type="application/x-javascript" src="chrome://tblatex/content/main.js" />
+// Import any needed modules.
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+// Load an additional JavaScript file.
+Services.scriptloader.loadSubScript("chrome://tblatex/content/main.js", window, "UTF-8");
+
+function onLoad(activatedWhileWindowOpen) {  
+  WL.injectCSS("resource://tblatex-skin/overlay.css");
+  WL.injectElements(`
   <keyset>
     <key id="tblatex-run" modifiers="accel shift" key="L"
       oncommand="tblatex.on_latexit(event, true);"
@@ -57,5 +60,8 @@
           />
       </menupopup>
     </toolbarbutton>
-  </toolbarpalette>
-</overlay>
+  </toolbarpalette>`);
+}
+
+function onUnload(deactivatedWhileWindowOpen) {
+}
