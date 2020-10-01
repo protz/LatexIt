@@ -506,7 +506,7 @@ var tblatex = {
     if (event.button == 2) return;
     var editor_elt = document.getElementById("content-frame");
     if (editor_elt.editortype != "htmlmail") {
-      alert("Cannot Latexify plain text emails. Start again by opening the message composer window while holding the 'Shift' key.");
+      alert("LatexIt! Error\n\nCannot Latexify plain text emails.\n\nSolution:\n\tStart again by opening the message composer window in HTML mode, this can be achieved by holding the 'Shift' key while pressing the button.");
       return;
     }
 
