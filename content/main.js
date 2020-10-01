@@ -326,7 +326,7 @@ var tblatex = {
 
       // Read the depth (distance between base of image and baseline) from the depth file
       if (!depth_file.exists()) {
-        log += "dvipng did not put out a depth file. Continuing without alignment.\n";
+        log += "dvipng did not output a depth file. Continuing without alignment.\n";
         g_image_cache[latex_expr+font_px] = {png: png_file.path, depth: 0};
         return [st, png_file.path, 0, log];
       }
