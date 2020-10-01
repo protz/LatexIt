@@ -40,11 +40,17 @@ function populate(template, selection) {
       marker = oldmarker;
     }
   }
-  if (start > -1 && selection) {
-    // Replace marker with selection
-    template = template.substring(0, start) + selection + template.substring(start+marker.length)
-    marker = selection;
-  }
+  if (start > -1)
+    if (selection) {
+      // Replace marker with selection
+      template = template.substring(0, start) + selection + template.substring(start+marker.length)
+      marker = selection;
+    }
+    else {
+      // Insert $ on either side of the marker, so it's easier for the user
+      template = template.slice(0, start) + "$" + template.slice(start, start+marker.length) + "$" + template.slice(start+marker.length);
+       start += 1
+    }
 
   var textarea = document.getElementById("tblatex-expr");
   textarea.value = template;
