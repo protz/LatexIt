@@ -105,8 +105,8 @@ var tblatex = {
 
       if (g_image_cache[latex_expr+font_px]) {
         if (debug)
-          log += "Found a cached image file "+g_image_cache[latex_expr+font_px]+", returning\n";
-        return [0, g_image_cache[latex_expr+font_px], 0, log+"Image was already generated\n"];
+          log += "Found a cached image file "+g_image_cache[latex_expr+font_px].png+" (depth="+g_image_cache[latex_expr+font_px].depth+"), returning\n";
+        return [0, g_image_cache[latex_expr+font_px].png, g_image_cache[latex_expr+font_px].depth, log+"Image was already generated\n"];
       }
 
       var init_file = function(path) {
@@ -283,7 +283,6 @@ var tblatex = {
         log += "!!! dvipng failed with error code "+shell_process.exitValue+". Aborting.\n";
         return [2, "", 0, log];
       }
-      g_image_cache[latex_expr+font_px] = png_file.path;
 
       if (debug) {
         log += ("*** Status is "+st+"\n");
@@ -301,6 +300,7 @@ var tblatex = {
       // Read the depth (distance between base of image and baseline) from the depth file
       if (!depth_file.exists()) {
         log += "dvipng did not put out a depth file. Continuing without alignment.\n";
+        g_image_cache[latex_expr+font_px] = {png: png_file.path, depth: 0};
         return [st, png_file.path, 0, log];
       }
 
@@ -337,6 +337,7 @@ var tblatex = {
       //  in case of error.
       if (deletetempfiles) temp_file.remove(false);
 
+      g_image_cache[latex_expr+font_px] = {png: png_file.path, depth: depth};
       return [st, png_file.path, depth, log];
     } catch (e) {
       dump(e+"\n");
