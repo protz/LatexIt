@@ -5,5 +5,6 @@ Preferences.addAll([
   { id: "tblatex.font_px", type: "int" },
   { id: "tblatex.log", type: "bool" },
   { id: "tblatex.debug", type: "bool" },
+  { id: "tblatex.keeptempfiles", type: "bool" },
   { id: "tblatex.template", type: "string" },
 ]);
