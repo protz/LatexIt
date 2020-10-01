@@ -1,3 +1,12 @@
+--vX.Y.Z
+
+- Fixed baseline alignment on multiple runs (Bug #64).
+- Added option to keep the temporary files, even after successful LaTeX runs.
+
+--v0.7.2
+
+– ????
+
 --v0.7.1
 
 - Fixed the insertion of complex LaTeX (Bug #43).

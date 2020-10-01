@@ -94,6 +94,7 @@ var tblatex = {
     var st = 0;
     var temp_file;
     try {
+      var deletetempfiles = !prefs.getBoolPref("keeptempfiles");
       var debug = prefs.getBoolPref("debug");
       if (debug) {
         var env = Components.classes["@mozilla.org/process/environment;1"]
@@ -219,7 +220,7 @@ var tblatex = {
       ["log", "aux"].forEach(function (ext) {
           var file = init_file(temp_dir);
           file.append(temp_file_noext+"."+ext);
-          file.remove(false);
+          if (deletetempfiles) file.remove(false);
         });
 
       var dvi_file = init_file(temp_dir);
@@ -275,7 +276,7 @@ var tblatex = {
       var shell_process = init_process(shell_bin);
       var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-D", dpi, "-o", png_file.path, dvi_file.path, ">", depth_file.path];
       shell_process.run(true, [shell_option, dvipng_args.join(" ")], 2);
-      dvi_file.remove(false);
+      if (deletetempfiles) dvi_file.remove(false);
       if (debug)
         log += "I ran "+shell_bin.path+" -c '"+dvipng_args.join(" ")+"'\n";
       if (shell_process.exitValue) {
@@ -330,11 +331,11 @@ var tblatex = {
       // Close input stream
       istream.close();
       
-      depth_file.remove(false);
+      if (deletetempfiles) depth_file.remove(false);
 
       // Only delete the temporary file at this point, so that it's left on disk
       //  in case of error.
-      temp_file.remove(false);
+      if (deletetempfiles) temp_file.remove(false);
 
       return [st, png_file.path, depth, log];
     } catch (e) {
@@ -686,13 +687,15 @@ var tblatex = {
   window.addEventListener("unload",
     // Remove all cached images on closing the composer window
     function() {
-      for (var key in g_image_cache) {
-        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
-        try {
-          f.initWithPath(g_image_cache[key]);
-          f.remove(false);
-          delete g_image_cache[key];
-        } catch (e) { }
+      if (!prefs.getBoolPref("keeptempfiles")) {
+        for (var key in g_image_cache) {
+          var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
+          try {
+            f.initWithPath(g_image_cache[key]);
+            f.remove(false);
+            delete g_image_cache[key];
+          } catch (e) { }
+        }
       }
     }, false);
 })()

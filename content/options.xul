@@ -46,6 +46,10 @@
       <checkbox preference="tblatex.debug" id="debug_checkbox"
         label="Generate debug info" />
     </hbox>
+    <hbox>
+      <checkbox preference="tblatex.keeptempfiles" id="keeptempfiles_checkbox"
+        label="Keep generated files" />
+    </hbox>
   </groupbox>
   <separator />
   <groupbox>
