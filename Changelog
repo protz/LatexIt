@@ -1,7 +1,7 @@
 --vX.Y.Z
 
 - Fixed baseline alignment on multiple runs (Bug #64).
-- Check for inclusion of "preview" package in LaTeX template.
+- Check for inclusion of "preview" package in LaTeX template (Bug #63).
 - Added a do-not-delete note to the template regarding "\usepackage[active]{preview}".
 - Added more aggressive error messages for severe errors.
 - Tiny improvements in error messages.
