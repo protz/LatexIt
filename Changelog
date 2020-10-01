@@ -1,3 +1,7 @@
+--vX.Y.Z
+
+- Added option to keep the temporary files, even after successful LaTeX runs.
+
 --v0.7.1
 
 - Fixed the insertion of complex LaTeX (Bug #43).
