@@ -1,7 +1,10 @@
 --vX.Y.Z
 
 - Fixed baseline alignment on multiple runs (Bug #64).
-- Bracket the placeholder with $$ in the complex LaTeX dialog.
+- Check for inclusion of "preview" package in LaTeX template (Bug #63).
+- Added a do-not-delete note to the template regarding "\usepackage[active]{preview}".
+- Added more aggressive error messages for some severe errors.
+- Tiny improvements in error messages.
 - Added option to keep the temporary files, even after successful LaTeX runs.
 
 --v0.7.2
