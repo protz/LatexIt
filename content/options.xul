@@ -28,34 +28,40 @@
   <separator />
   <groupbox>
     <label value="Configurations:" style="header; font-weight: bold;" />
-    <hbox>
-      <checkbox preference="tblatex.autodpi" id="autodpi_checkbox"
-        label="Adapt image resolution automatically to font size" />
-    </hbox>
-    <hbox align="baseline">
-      <label control="fontpx_textbox" value="Font size of image, if not automatically set:" />
-      <textbox preference="tblatex.font_px" id="fontpx_textbox"
-        type="number" min="1" decimalplaces="0" increment="1" size="2" />
-      <label control="fontpx_textbox" value="px" />
-    </hbox>
-    <hbox>
-      <checkbox preference="tblatex.log" id="log_checkbox" oncommand="on_log();"
-        label="Generate a log report" />
-    </hbox>
-    <hbox>
-      <checkbox preference="tblatex.debug" id="debug_checkbox"
-        label="Generate debug info" />
-    </hbox>
-    <hbox>
-      <checkbox preference="tblatex.keeptempfiles" id="keeptempfiles_checkbox"
-        label="Keep generated files" />
-    </hbox>
+    <groupbox>
+      <label value="Appearance:" style="header;" />
+      <hbox>
+        <checkbox preference="tblatex.autodpi" id="autodpi_checkbox"
+          label="Adapt image resolution automatically to font size" />
+      </hbox>
+      <hbox align="baseline">
+        <label control="fontpx_textbox" value="Font size of image, if not automatically set:" />
+        <textbox preference="tblatex.font_px" id="fontpx_textbox"
+          type="number" min="1" decimalplaces="0" increment="1" size="2" />
+        <label control="fontpx_textbox" value="px" />
+      </hbox>
+    </groupbox>
+    <groupbox>
+      <label value="Debugging:" style="header;" />
+      <hbox>
+        <checkbox preference="tblatex.log" id="log_checkbox" oncommand="on_log();"
+          label="Generate a log report" />
+      </hbox>
+      <hbox>
+        <checkbox preference="tblatex.debug" id="debug_checkbox"
+          label="Generate debug info" />
+      </hbox>
+      <hbox>
+        <checkbox preference="tblatex.keeptempfiles" id="keeptempfiles_checkbox"
+          label="Keep generated files" />
+      </hbox>
+    </groupbox>
   </groupbox>
   <separator />
   <groupbox>
     <label value="Template:" style="header; font-weight: bold;" />
     <hbox>
-      <label control="template_textbox" value="Template to use to generate LaTeX parts."/>
+      <label control="template_textbox" value="Template to be used to generate LaTeX parts."/>
       <spacer flex="1" />
       <label style="text-decoration: underline; color: navy; cursor: pointer" value="Help ?"
         onclick="window.openDialog('chrome://tblatex/content/help.html', '',
