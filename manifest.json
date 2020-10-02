@@ -10,7 +10,7 @@
   "author": "Jonathan Protzenko",
   "name": "LaTeX It!",
   "description": "Automatically change $\\LaTeX$ into images in your HTML mails.",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "homepage_url": "https://github.com/protz/LatexIt/wiki",
   "legacy": {
     "type": "xul",
