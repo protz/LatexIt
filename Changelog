@@ -5,6 +5,8 @@
 - Color of bitmap is now color of surrounding text. (A color specification
   in the the LaTeX file gets always the priority). (Bug #70)
 - Layout improvements in configuration dialog.
+- Fix issue on Windows that prevented LatexIt! from working unless debug is
+  enabled.
 
 --v0.7.3
 
