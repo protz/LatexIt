@@ -96,10 +96,7 @@ var tblatex = {
     try {
       var deletetempfiles = !prefs.getBoolPref("keeptempfiles");
       var debug = prefs.getBoolPref("debug");
-      var env = Components.classes["@mozilla.org/process/environment;1"]
-                .getService(Components.interfaces.nsIEnvironment);
-      if (debug) {
-        log += "\n$PATH is "+env.get("PATH")+"\n";
+      if (debug)
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
       }
 
@@ -186,6 +183,8 @@ var tblatex = {
       // Here we get the shell binary and the command line option to call an
       // external program.
       if (isWindows) {
+        var env = Components.classes["@mozilla.org/process/environment;1"]
+                  .getService(Components.interfaces.nsIEnvironment);
         var shell_bin = init_file(env.get("COMSPEC"));
         var shell_option = "/C";
       } else {
