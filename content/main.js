@@ -96,9 +96,9 @@ var tblatex = {
     try {
       var deletetempfiles = !prefs.getBoolPref("keeptempfiles");
       var debug = prefs.getBoolPref("debug");
+      var env = Components.classes["@mozilla.org/process/environment;1"]
+                .getService(Components.interfaces.nsIEnvironment);
       if (debug) {
-        var env = Components.classes["@mozilla.org/process/environment;1"]
-                  .getService(Components.interfaces.nsIEnvironment);
         log += "\n$PATH is "+env.get("PATH")+"\n";
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
       }
