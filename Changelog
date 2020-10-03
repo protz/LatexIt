@@ -1,4 +1,4 @@
---v0.7.3
+--vX.Y.Z
 
 - Improvements in the generated .png bitmaps: Transparent background
   (if not set otherwise in LaTeX document) and compression level 3.
@@ -6,7 +6,7 @@
   in the the LaTeX file gets always the priority). (Bug #70)
 - Layout improvements in configuration dialog.
 
---v0.7.2
+--v0.7.3
 
 - Fixed baseline alignment on multiple runs (Bug #64).
 - Check for inclusion of "preview" package in LaTeX template (Bug #63).
@@ -14,10 +14,12 @@
 - Added more aggressive error messages for some severe errors.
 - Tiny improvements in error messages.
 - Added option to keep the temporary files, even after successful LaTeX runs.
+- Fix typo in the "Insert Complex Latex" dialog that prevented it from working.
 
 --v0.7.2
 
-- ????
+- Fix error in the first run dialog
+- Mark the addon as incompatible with Thunderbird 78 for now
 
 --v0.7.1
 
