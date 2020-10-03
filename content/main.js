@@ -89,7 +89,7 @@ var tblatex = {
    * - depth is the number of pixels from the bottom of the image to the baseline of the image
    * - log is the log messages generated during the run
    * */
-  function run_latex(latex_expr, font_px) {
+  function run_latex(latex_expr, font_px, font_color) {
     var log = "";
     var st = 0;
     var temp_file;
@@ -103,10 +103,10 @@ var tblatex = {
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
       }
 
-      if (g_image_cache[latex_expr+font_px]) {
+      if (g_image_cache[latex_expr+font_px+font_color]) {
         if (debug)
-          log += "Found a cached image file "+g_image_cache[latex_expr+font_px].png+" (depth="+g_image_cache[latex_expr+font_px].depth+"), returning\n";
-        return [0, g_image_cache[latex_expr+font_px].png, g_image_cache[latex_expr+font_px].depth, log+"Image was already generated\n"];
+          log += "Found a cached image file "+g_image_cache[latex_expr+font_px+font_color].png+" (depth="+g_image_cache[latex_expr+font_px+font_color].depth+"), returning\n";
+        return [0, g_image_cache[latex_expr+font_px+font_color].png, g_image_cache[latex_expr+font_px+font_color].depth, log+"Image was already generated\n"];
       }
 
       // Check if the LaTeX expression (that is, the whole file) contains the required packages.
@@ -281,6 +281,37 @@ var tblatex = {
       // Looks like Thunderbird is one of the "proprietary browsers", at least if I assumed that
       // the font size returned is in points (and not pixels) I get the right size with a screen
       // resolution of 96.
+      //
+      //  -z 0-9
+      //      Set the PNG compression level to num. The default compression level
+      //      is 1, which selects maximum speed at the price of slightly larger
+      //      
+      //      PNGs. The include file png.h says "Currently, valid values range
+      //      from 0 - 9, corresponding directly to the zlib compression levels
+      //      0 - 9 (0 - no compression, 9 - "maximal" compression). Note that tests
+      //      have shown that zlib compression levels 3-6 usually perform as well as
+      //      level 9 for PNG images, and do considerably fewer calculations. In the
+      //      future, these values may not correspond directly to the zlib compression
+      //      levels."
+      //
+      // As a compromise we use level 3.
+      //
+      //  -bg color_spec
+      //      Choose background color for the images. This option will be ignored
+      //      if there is a background color \special in the DVI. The color spec
+      //      should be in TeX color \special syntax, e.g., 'rgb 1.0 0.0 0.0'.
+      //      You can also specify 'Transparent' or 'transparent' which will give
+      //      you a transparent background with the normal background as a
+      //      fallback color. A capitalized 'Transparent' will give a full-alpha
+      //      transparency, while an all-lowercase 'transparent' will give a
+      //      simple fully transparent background with non-transparent
+      //      antialiased pixels. The latter would be suitable for viewers who
+      //      cannot cope with a true alpha channel.  GIF images do not support
+      //      full alpha transparency, so in case of GIF output, both variants
+      //      will use the latter behaviour.
+      //
+      // We simply assume, that all modern mail viewers can handle a true alpha channel,
+      // hence we use "Transparent".
       if (prefs.getBoolPref("autodpi") && font_px) {
         var font_size = parseFloat(font_px);
         if (debug)
@@ -295,7 +326,7 @@ var tblatex = {
         log += "*** Calculated resolution is "+dpi+" dpi\n";
 
       var shell_process = init_process(shell_bin);
-      var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-D", dpi, "-o", png_file.path, dvi_file.path, ">", depth_file.path];
+      var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-z", "3", "-bg", "Transparent", "-D", dpi, "-fg", "\""+font_color+"\"", "-o", png_file.path, dvi_file.path, ">", depth_file.path];
       shell_process.run(true, [shell_option, dvipng_args.join(" ")], 2);
       if (deletetempfiles) dvi_file.remove(false);
       if (debug)
@@ -322,7 +353,7 @@ var tblatex = {
       // Read the depth (distance between base of image and baseline) from the depth file
       if (!depth_file.exists()) {
         log += "dvipng did not output a depth file. Continuing without alignment.\n";
-        g_image_cache[latex_expr+font_px] = {png: png_file.path, depth: 0};
+        g_image_cache[latex_expr+font_px+font_color] = {png: png_file.path, depth: 0};
         return [st, png_file.path, 0, log];
       }
 
@@ -359,7 +390,7 @@ var tblatex = {
       //  in case of error.
       if (deletetempfiles) temp_file.remove(false);
 
-      g_image_cache[latex_expr+font_px] = {png: png_file.path, depth: depth};
+      g_image_cache[latex_expr+font_px+font_color] = {png: png_file.path, depth: depth};
       return [st, png_file.path, depth, log];
     } catch (e) {
       // alert("Latex It! Error\n\nSevere error. Missing package?\n\nSolution:\n\tWe left the .tex file there:\n\t\t"+temp_file.path+"\n\tTry to run 'latex' and 'dvipng --depth' on it by yourself...");
@@ -456,7 +487,9 @@ var tblatex = {
         write_log(log);
       // Font size in pixels
       var font_px = window.getComputedStyle(elt.parentElement, null).getPropertyValue('font-size');
-      var [st, url, depth, log] = run_latex(latex_expr, font_px);
+      // Font color in "rgb(x,y,z)" => "RGB x y z"
+      var font_color = window.getComputedStyle(elt.parentElement, null).getPropertyValue('color').replace(/([\(,\)])/g, " ").replace("rgb", "RGB");
+      var [st, url, depth, log] = run_latex(latex_expr, font_px, font_color);
       if (st || !silent)
         write_log(log);
       if (st == 0 || st == 1) {
@@ -589,7 +622,9 @@ var tblatex = {
         } else {
           var font_px = font_size+"px";
         }
-        var [st, url, depth, log] = run_latex(latex_expr, font_px);
+        // Font color in "rgb(x,y,z)" => "RGB x y z"
+        var font_color = window.getComputedStyle(elt).getPropertyValue('color').replace(/([\(,\)])/g, " ").replace("rgb", "RGB");
+        var [st, url, depth, log] = run_latex(latex_expr, font_px, font_color);
         log = log || "Everything went OK.\n";
         write_log(log);
         if (st == 0 || st == 1) {
