@@ -232,7 +232,7 @@ var tblatex = {
       converter.close(); // this closes foStream
 
 
-      var latex_process = sanitize_path(init_process(latex_bin));
+      var latex_process = init_process(sanitize_path(latex_bin));
       var latex_args = ["-output-directory="+sanitize_path(temp_dir), "-interaction=batchmode", sanitize_path(temp_file.path)];
       latex_process.run(true, latex_args, latex_args.length);
       if (debug)
