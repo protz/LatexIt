@@ -4,7 +4,9 @@ var tblatex = {
   on_undo: null,
   on_undo_all: null,
   on_insert_complex: null,
-  on_open_options: null
+  on_open_options: null,
+  on_load:null,
+  on_unload: null
 };
 
 (function () {
@@ -16,6 +18,12 @@ var tblatex = {
   var g_undo_func = null;
   var g_image_cache = {};
 
+  function sleep (delay) {
+      return new Promise(function(resolve, reject) {
+          window.setTimeout(resolve, delay);
+      });
+  }  
+  
   function dumpCallStack(e) {
     let frame = e ? e.stack : Components.stack;
     while (frame) {
@@ -96,7 +104,7 @@ var tblatex = {
     try {
       var deletetempfiles = !prefs.getBoolPref("keeptempfiles");
       var debug = prefs.getBoolPref("debug");
-      if (debug)
+      if (debug) {
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
       }
 
@@ -699,61 +707,76 @@ var tblatex = {
     }
   }
 
-  // Override original send functions (this follows the approach from the "Check and Send" add-on
-  var tblatex_SendMessage_orig = SendMessage;
-  SendMessage = function() {
-    if (check_log_report())
-      tblatex_SendMessage_orig.apply(this, arguments);
-  }
+  
 
-  // Ctrl-Enter
-  var tblatex_SendMessageWithCheck_orig = SendMessageWithCheck;
-  SendMessageWithCheck = function() {
-    if (check_log_report())
-      tblatex_SendMessageWithCheck_orig.apply(this, arguments);
-  }
-
-  var tblatex_SendMessageLater_orig = SendMessageLater;
-  SendMessageLater = function() {
-    if (check_log_report())
-      tblatex_SendMessageLater_orig.apply(this, arguments);
-  }
-
+  
   /* Is this even remotey useful ? */
   /* Yes, because we can disable the toolbar button and menu items for plain text messages! */
-  window.addEventListener("load",
-    function () {
-      var tb = document.getElementById("composeToolbar2");
-      tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
+  tblatex.on_load = async function () {
+    // Override original send functions (this follows the approach from the "Check and Send" add-on
+    tblatex.SendMessage_orig = SendMessage;
+    SendMessage = function() {
+      if (check_log_report())
+          tblatex.SendMessage_orig.apply(this, arguments);
+    }
 
-      // Disable the button and menu for non-html composer windows
-      var editor_elt = document.getElementById("content-frame");
-      if (editor_elt.editortype != "htmlmail") {
+    // Ctrl-Enter
+    tblatex.SendMessageWithCheck_orig = SendMessageWithCheck;
+    SendMessageWithCheck = function() {
+      if (check_log_report())
+          tblatex.SendMessageWithCheck_orig.apply(this, arguments);
+    }
+
+    tblatex.SendMessageLater_orig = SendMessageLater;
+    SendMessageLater = function() {
+      if (check_log_report())
+          tblatex.SendMessageLater_orig.apply(this, arguments);
+    }
+
+    var tb = document.getElementById("composeToolbar2");
+    tb.setAttribute("defaultset", tb.getAttribute("defaultset")+",tblatex-button-1");
+
+    // wait for editortype being available (max 20 x 20ms)
+    for (let i=0; i < 20; i++) {
+      let editor_elt = document.getElementById("content-frame");
+      if (editor_elt.editortype) {
+       break;
+      }
+      await sleep(20);
+    }
+    
+    // Disable the button and menu for non-html composer windows
+    let editor_elt = document.getElementById("content-frame");
+    if (editor_elt.editortype != "htmlmail") {
       var btn = document.getElementById("tblatex-button-1");
       if (btn) {
           btn.tooltipText = "Start a message in HTML format (by holding the 'Shift' key) to be able to turn every $...$ into a LaTeX image"
           btn.disabled = true;
-        }
-        for (var id of ["tblatex-context", "tblatex-context-menu"]) {
-            var menu = document.getElementById(id);
-            if (menu)
-                menu.disabled = true;
-        }
       }
-    }, false);
+      for (var id of ["tblatex-context", "tblatex-context-menu"]) {
+        var menu = document.getElementById(id);
+        if (menu)
+          menu.disabled = true;
+      }
+    }
+  }
+  
+  tblatex.on_unload = function() {
+    // Revert Patch
+    SendMessage = tblatex.SendMessage_orig;
+    SendMessageWithCheck = tblatex.SendMessageWithCheck_orig;
+    SendMessageLater = tblatex.SendMessageLater_orig;
 
-  window.addEventListener("unload",
     // Remove all cached images on closing the composer window
-    function() {
-      if (!prefs.getBoolPref("keeptempfiles")) {
-        for (var key in g_image_cache) {
-          var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
-          try {
-            f.initWithPath(g_image_cache[key]);
-            f.remove(false);
-            delete g_image_cache[key];
-          } catch (e) { }
-        }
+    if (!prefs.getBoolPref("keeptempfiles")) {
+      for (var key in g_image_cache) {
+        var f = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
+        try {
+          f.initWithPath(g_image_cache[key]);
+          f.remove(false);
+          delete g_image_cache[key];
+        } catch (e) { }
       }
-    }, false);
+    }
+  }
 })()

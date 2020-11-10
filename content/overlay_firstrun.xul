@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<overlay id="messengerWindow" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/javascript" src="firstrun.js" />
-  <script type="application/javascript" src="osx-path-hacks.js" />
-</overlay>

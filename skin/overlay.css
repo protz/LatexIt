@@ -1,7 +1,7 @@
 #tblatex-button-1 {
-  list-style-image: url("chrome://tblatex/skin/button.png");
+  list-style-image: url("resource://tblatex-skin/button.png");
 }
 
 [iconsize="small"] #tblatex-button-1 {
-  list-style-image: url("chrome://tblatex/skin/buttonsmall.png");
+  list-style-image: url("resource://tblatex-skin/buttonsmall.png");
 }
