@@ -146,7 +146,7 @@ var tblatex = {
         if (path.indexOf(" ") < 0)
             return path;
         else
-            return "\""+path+"\"\;
+            return "\""+path+"\"";
       }
 
       var latex_bin = init_file(prefs.getCharPref("latex_path"));
