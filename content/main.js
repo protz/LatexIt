@@ -98,7 +98,6 @@ var tblatex = {
       var debug = prefs.getBoolPref("debug");
       if (debug)
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
-      }
 
       if (g_image_cache[latex_expr+font_px+font_color]) {
         if (debug)
