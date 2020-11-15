@@ -28,7 +28,7 @@ function onLoad(activatedWhileWindowOpen) {
           oncommand="tblatex.on_undo_all(event);" />
         <menuseparator />
         <menuitem id="tblatex-context-insert_complex"
-          label="Insert complex LaTeX"
+          label="Insert complex LaTeX..."
           oncommand="tblatex.on_insert_complex(event);" />
       </menupopup>
     </menu>
@@ -53,7 +53,7 @@ function onLoad(activatedWhileWindowOpen) {
           tooltiptext="Remove all images and restore all formulae"
           />
         <menuseparator />
-        <menuitem label="Insert complex LaTeX" id="tblatex-button-insert_complex"
+        <menuitem label="Insert complex LaTeX..." id="tblatex-button-insert_complex"
           oncommand="tblatex.on_insert_complex(event);"
           tooltiptext="Open a dialog to insert an arbitrary chunk of LaTeX"
           />
