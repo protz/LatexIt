@@ -149,7 +149,13 @@ var tblatex = {
         process.init(path);
         return process;
       }
-
+      var sanitize_path = function(path) {
+        if (path.indexOf(" ") < 0)
+            return path;
+        else
+            return "\""+path+"\"";
+      }
+      
       var latex_bin = init_file(prefs.getCharPref("latex_path"));
       if (!latex_bin.exists()) {
         alert("Latex It! Error\n\nThe 'latex' executable cannot be found.\n\nSolution:\n\tSet the right path in the add-on's options dialog (☰>Add-ons>Latex It!)");
@@ -234,10 +240,10 @@ var tblatex = {
 
 
       var latex_process = init_process(latex_bin);
-      var latex_args = ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path];
+      var latex_args = ["-output-directory="+sanitize_path(temp_dir), "-interaction=batchmode", sanitize_path(temp_file.path)];
       latex_process.run(true, latex_args, latex_args.length);
       if (debug)
-        log += "I ran "+latex_bin.path+" "+latex_args.join(" ")+" error code "+latex_process.exitValue+"\n";
+        log += "I ran "+sanitize_path(latex_bin.path)+" "+latex_args.join(" ")+" error code "+latex_process.exitValue+"\n";
       if (latex_process.exitValue) {
         st = 1;
         log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
@@ -332,7 +338,7 @@ var tblatex = {
         log += "*** Calculated resolution is "+dpi+" dpi\n";
 
       var shell_process = init_process(shell_bin);
-      var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-z", "3", "-bg", "Transparent", "-D", dpi, "-fg", "\""+font_color+"\"", "-o", png_file.path, dvi_file.path, ">", depth_file.path];
+      var dvipng_args = [sanitize_path(dvipng_bin.path), "--depth", "-T", "tight", "-z", "3", "-bg", "Transparent", "-D", dpi, "-fg", "\""+font_color+"\"", "-o", sanitize_path(png_file.path), sanitize_path(dvi_file.path), ">", sanitize_path(depth_file.path)];
       shell_process.run(true, [shell_option, dvipng_args.join(" ")], 2);
       if (deletetempfiles) dvi_file.remove(false);
       if (debug)
