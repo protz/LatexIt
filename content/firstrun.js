@@ -1,4 +1,7 @@
 (function () {
+    var { latexit } = ChromeUtils.import("chrome://tblatex/content/legacy/latexit.jsm");
+    console.log(latexit.preferences.getPref("test", "missing"));
+    
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
       .getService(Components.interfaces.nsIPrefService)
       .getBranch("tblatex.");

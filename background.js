@@ -12,6 +12,9 @@
   messenger.WindowListener.registerOptionsPage(
     "chrome://tblatex/content/options.xhtml");
    
+  messenger.WindowListener.registerStartupScript(
+    "chrome://tblatex/content/scripts/startup.js");
+  
   messenger.WindowListener.registerWindow(
     "chrome://messenger/content/messenger.xhtml",
     "chrome://tblatex/content/scripts/messenger_firstrun.js");

@@ -19,6 +19,9 @@
       "background.js"
     ]
   },
+  "permissions": [
+    "storage"
+  ],
   "experiment_apis": {
     "WindowListener": {
       "schema": "api/WindowListener/schema.json",
