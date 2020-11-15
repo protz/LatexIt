@@ -36,6 +36,7 @@ function onLoad(activatedWhileWindowOpen) {
   </popup>
   <toolbarpalette id="MsgComposeToolbarPalette">
     <toolbarbutton id="tblatex-button-1"
+      is="toolbarbutton-menu-button"
       class="toolbarbutton-1"
       label="Latex It!"
       tooltiptext="Turn every $...$ into a LaTeX image (Ctrl/Meta-Shift-L for silent run)"
