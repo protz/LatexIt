@@ -122,7 +122,7 @@ var tblatex = {
       // introduced in v0.7.x.
       //
       // If the package(s) cannot be found, an alert message window is shown, informing the user.
-      var re = /^[^%]*\\usepackage\[(.*,\s*)?active(,.*)?\]{(.*,\s*)?preview(,.*)?}/m;
+      var re = /^[^%]?\\usepackage\[(.*,\s*)?active(,.*)?\]{(.*,\s*)?preview(,.*)?}/m;
       var package_match = latex_expr.match(re);
       if (!package_match) {
         alert("Latex It! Error - Nothing added!\n\nThe package 'preview' cannot be found in the LaTeX file.\nThe inclusion of the LaTeX package 'preview' (with option 'active') is mandatory for the generated pictures to be aligned with the surrounding text!\n\nSolution:\n\tInsert a line with\n\t\t\\usepackage[active,displaymath,textmath]{preview}\n\tin the preamble of your LaTeX template or complex expression.");
