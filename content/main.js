@@ -23,7 +23,7 @@ var tblatex = {
           window.setTimeout(resolve, delay);
       });
   }  
-  
+
   function dumpCallStack(e) {
     let frame = e ? e.stack : Components.stack;
     while (frame) {
@@ -104,7 +104,7 @@ var tblatex = {
     try {
       var deletetempfiles = !prefs.getBoolPref("keeptempfiles");
       var debug = prefs.getBoolPref("debug");
-      if (debug) {
+      if (debug)
         log += ("\n*** Generating LaTeX expression:\n"+latex_expr+"\n");
 
       if (g_image_cache[latex_expr+font_px+font_color]) {
@@ -706,9 +706,7 @@ var tblatex = {
     }
   }
 
-  
 
-  
   /* Is this even remotey useful ? */
   /* Yes, because we can disable the toolbar button and menu items for plain text messages! */
   tblatex.on_load = async function () {
@@ -743,7 +741,7 @@ var tblatex = {
       }
       await sleep(20);
     }
-    
+
     // Disable the button and menu for non-html composer windows
     let editor_elt = document.getElementById("content-frame");
     if (editor_elt.editortype != "htmlmail") {
@@ -759,7 +757,7 @@ var tblatex = {
       }
     }
   }
-  
+
   tblatex.on_unload = function() {
     // Revert Patch
     SendMessage = tblatex.SendMessage_orig;
