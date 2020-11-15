@@ -12,7 +12,7 @@ var tblatex = {
 (function () {
   var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
 
-  if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xul")
+  if (document.location.href != "chrome://messenger/content/messengercompose/messengercompose.xhtml")
     return;
 
   var g_undo_func = null;
@@ -681,12 +681,12 @@ var tblatex = {
     };
     var template = g_complex_input || prefs.getCharPref("template");
     var selection = editor.selection.toString();
-    window.openDialog("chrome://tblatex/content/insert.xul", "", "chrome, resizable=yes", f, template, selection);
+    window.openDialog("chrome://tblatex/content/insert.xhtml", "", "chrome, resizable=yes", f, template, selection);
     event.stopPropagation();
   };
 
   tblatex.on_open_options = function (event) {
-    window.openDialog("chrome://tblatex/content/options.xul", "", "");
+    window.openDialog("chrome://tblatex/content/options.xhtml", "", "");
     event.stopPropagation();
   };
 
@@ -697,7 +697,7 @@ var tblatex = {
     var div = edocument.getElementById("tblatex-log");
     if (div) {
       var retVals = {action: -1};
-      window.openDialog("chrome://tblatex/content/sendalert.xul", "", "chrome,modal,dialog,centerscreen", retVals);
+      window.openDialog("chrome://tblatex/content/sendalert.xhtml", "", "chrome,modal,dialog,centerscreen", retVals);
       switch (retVals.action) {
         case 0:
           div.parentNode.removeChild(div);

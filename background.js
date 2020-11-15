@@ -1,6 +1,7 @@
 (async () => { 
 
-  messenger.WindowListener.registerDefaultPrefs("defaults/preferences/defaults.js");
+  messenger.WindowListener.registerDefaultPrefs(
+    "defaults/preferences/defaults.js");
   
   // load add-on via WindowListener API
   messenger.WindowListener.registerChromeUrl([ 
@@ -8,18 +9,19 @@
     ["resource",  "tblatex-skin",  "skin/"],
   ]);
 
-  messenger.WindowListener.registerOptionsPage("chrome://tblatex/content/options.xul");
+  messenger.WindowListener.registerOptionsPage(
+    "chrome://tblatex/content/options.xhtml");
    
   messenger.WindowListener.registerWindow(
-    "chrome://messenger/content/messenger.xul",
+    "chrome://messenger/content/messenger.xhtml",
     "chrome://tblatex/content/scripts/messenger_firstrun.js");
       
   messenger.WindowListener.registerWindow(
-    "chrome://messenger/content/messengercompose/messengercompose.xul",
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     "chrome://tblatex/content/scripts/messengercompose.js");
   
   messenger.WindowListener.registerWindow(
-    "chrome://messenger/content/customizeToolbar.xul",
+    "chrome://messenger/content/customizeToolbar.xhtml",
     "chrome://tblatex/content/scripts/customizeToolbar.js");
     
   messenger.WindowListener.startListening();

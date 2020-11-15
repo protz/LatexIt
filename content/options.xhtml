@@ -14,13 +14,13 @@
     <label value="Executables:" style="header; font-weight: bold;" />
     <hbox align="baseline">
       <label control="latex_textbox" value="Path to latex executable:" />
-      <textbox preference="tblatex.latex_path" id="latex_textbox" />
-      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('textbox')[0], 'latex');" />
+      <html:input preference="tblatex.latex_path" id="latex_textbox" />
+      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('html:input')[0], 'latex');" />
     </hbox>
     <hbox align="baseline">
       <label control="dvipng_textbox" value="Path to dvipng executable:" />
-      <textbox preference="tblatex.dvipng_path" id="dvipng_textbox" />
-      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('textbox')[1], 'dvipng');" />
+      <html:input preference="tblatex.dvipng_path" id="dvipng_textbox" />
+      <button label="Browse..." oncommand="pick_file(document.getElementsByTagName('html:input')[1], 'dvipng');" />
     </hbox>
     <label style="text-decoration: underline; color: navy; cursor: pointer" value="Open the autodetection dialog"
       onclick="open_autodetect();" />
@@ -36,7 +36,7 @@
       </hbox>
       <hbox align="baseline">
         <label control="fontpx_textbox" value="Font size of image, if not automatically set:" />
-        <textbox preference="tblatex.font_px" id="fontpx_textbox"
+        <html:input preference="tblatex.font_px" id="fontpx_textbox"
           type="number" min="1" decimalplaces="0" increment="1" size="2" />
         <label control="fontpx_textbox" value="px" />
       </hbox>
