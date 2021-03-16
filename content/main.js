@@ -150,13 +150,13 @@ var tblatex = {
         return process;
       }
       var sanitize_arg = function(arg) {
-		// on Windows the nsIProcess function will add quotes around all arguments with spaces for us
-		if (isWindows)
-			return arg;
-		else if (arg.indexOf(" ") < 0)
-			return arg;
-		else
-			return "\""+arg+"\"";
+        // on Windows the nsIProcess function will add quotes around all arguments with spaces for us
+        if (isWindows)
+          return arg;
+        else if (arg.indexOf(" ") < 0)
+          return arg;
+        else
+          return "\""+arg+"\"";
       }
       
       var latex_bin = init_file(prefs.getCharPref("latex_path"));
@@ -244,8 +244,8 @@ var tblatex = {
 
       var latex_process = init_process(latex_bin);
       var latex_args = ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path];
-	  // This adds quotes around all arguments that contains spaces but only on Unix (on Windows the nsIProcess function will add quotes around all arguments with spaces for us)
-	  latex_args = latex_args.map(sanitize_arg);
+      // This adds quotes around all arguments that contains spaces but only on Unix (on Windows the nsIProcess function will add quotes around all arguments with spaces for us)
+      latex_args = latex_args.map(sanitize_arg);
       latex_process.run(true, latex_args, latex_args.length);
       if (debug)
         log += "I ran "+sanitize_arg(latex_bin.path)+" "+latex_args.join(" ")+" error code "+latex_process.exitValue+"\n";
@@ -343,19 +343,18 @@ var tblatex = {
         log += "*** Calculated resolution is "+dpi+" dpi\n";
 
       var shell_process = init_process(shell_bin);
-	  // The additional echo commands are needed on Windows in order to remove the unwanded backslaches and quotes added by the nsIProcess function ( shell_process.run )
-	  if (isWindows) {
-		var prefix_args = ["echo ", "\"", "&"];
-		var suffix_args = ["&", "echo", "\""];
-	  } else {
-		var prefix_args = ["\""];
-		var suffix_args = ["\""];
-	  }
-	  var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-z", "3", "-bg", "Transparent", "-D", dpi.toString(), "-fg", font_color, "-o", png_file.path, dvi_file.path, ">", depth_file.path];
-	  // This adds quotes around all arguments that contains spaces but only on Unix (on Windows the nsIProcess function will add quotes around all arguments with spaces for us)
-	  dvipng_args = dvipng_args.map(sanitize_arg);
-	  var process_args = [shell_option].concat(prefix_args, dvipng_args, suffix_args);
-	  shell_process.run(true, process_args, process_args.length);
+      var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-z", "3", "-bg", "Transparent", "-D", dpi.toString(), "-fg", font_color, "-o", png_file.path, dvi_file.path, ">", depth_file.path];
+      // This adds quotes around all arguments that contains spaces but only on Unix (on Windows the nsIProcess function will add quotes around all arguments with spaces for us)
+      dvipng_args = dvipng_args.map(sanitize_arg);
+      if (isWindows) {
+        // The additional echo commands are needed on Windows in order to remove the unwanded backslaches and quotes added by the nsIProcess function ( shell_process.run )
+        var prefix_args = ["echo ", "\"", "&"];
+        var suffix_args = ["&", "echo", "\""];
+        var process_args = [shell_option].concat(prefix_args, dvipng_args, suffix_args);
+      } else {
+        var process_args = [shell_option, dvipng_args.join(" ")];
+      }
+      shell_process.run(true, process_args, process_args.length);
       if (deletetempfiles) dvi_file.remove(false);
       if (debug)
         log += "I ran "+shell_bin.path+" -c '"+dvipng_args.join(" ")+"'\n";
