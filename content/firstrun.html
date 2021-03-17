@@ -5,90 +5,9 @@
     <title>Configuring Thunderbird LaTeX extension</title>
     <meta http-equiv="Content-Type" content="text/HTML; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="firstrun.css" />
-    <script type="application/javascript">
-      var Cc = Components.classes;
-      var Ci = Components.interfaces;
-      var prefs = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService).getBranch("tblatex.");
-      var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
-
-      function init_file(path) {
-        var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-        try {
-          f.initWithPath(path);
-        } catch (e) {
-          dump("Wrong path! "+path+"\n");
-          return {
-            exists: function () { return false; }
-          };
-        }
-        return f;
-      }
-
-      function search_in_path() {
-        var env = Cc["@mozilla.org/process/environment;1"].createInstance(Ci.nsIEnvironment);
-        var sep = isWindows ? ";" : ":";
-        var ext = isWindows ? ".exe" : "";
-        var dirs = env.get("PATH").split(sep);
-        var latex_found = false; var dvipng_found = false;
-        for (var i = 0; i < dirs.length; ++i) (function (i) {
-          var latex_bin = init_file(dirs[i]);
-          if (latex_bin.exists())
-            latex_bin.append("latex"+ext);
-          if (latex_bin.exists() && !latex_found) {
-            prefs.setCharPref("latex_path", latex_bin.path);
-            latex_found = true;
-            dump("Found latex in "+latex_bin.path+"\n");
-          }
-          var dvipng_bin = init_file(dirs[i]);
-          if (dvipng_bin.exists())
-            dvipng_bin.append("dvipng"+ext);
-          if (dvipng_bin.exists() && !dvipng_found) {
-            prefs.setCharPref("dvipng_path", dvipng_bin.path);
-            dvipng_found = true;
-            dump("Found dvipng in "+dvipng_bin.path+"\n");
-          }
-        })(i);
-      }
-
-      function on_load() {
-        if (isWindows)
-          document.getElementById("div_win32").style.display = "block";
-        search_in_path();
-
-        var latex_path = prefs.getCharPref("latex_path");
-        if (latex_path.length > 0 && init_file(latex_path).exists()) {
-          document.getElementById("latex_path").appendChild(document.createTextNode(latex_path));
-          document.getElementById("latex_icon").src = "accept.png";
-        } else {
-          document.getElementById("latex_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
-          document.getElementById("button_yes").setAttribute("disabled", "disabled");
-        }
-        var dvipng_path = prefs.getCharPref("dvipng_path");
-        if (dvipng_path.length > 0 && init_file(dvipng_path).exists()) {
-          document.getElementById("dvipng_path").appendChild(document.createTextNode(dvipng_path));
-          document.getElementById("dvipng_icon").src = "accept.png";
-        } else {
-          document.getElementById("dvipng_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
-          document.getElementById("button_yes").setAttribute("disabled", "disabled");
-        }
-
-        if (window.arguments && window.arguments[0]) {
-          window.arguments[0](document);
-        }
-      }
-
-      function on_yes() {
-        prefs.setIntPref("firstrun", 3);
-        window.close();
-      }
-
-      function on_no() {
-        window.openDialog("chrome://tblatex/content/options.xul");
-        on_yes();
-      }
-    </script>
+    <script type="application/javascript" src="firstrun.js"></script>
   </head>
-  <body onload="on_load();">
+  <body>
     <h1>Thunderbird LaTeX extension</h1>
     Congratulations! You have successfully installed the Thunderbird LaTeX
     extension. Please take a few seconds to check that the settings we have
@@ -138,10 +57,11 @@
     <span id="autodetect_report"></span>
     <p><strong><u>Are these settings correct?</u></strong></p>
     <p>
-      <button type="button" onclick="on_yes();" id="button_yes">Yes, don't bother me again</button>
-      <button type="button" onclick="on_no();">No, take me to the options screen</button>
+      <button type="button" id="button_yes">Yes, don't bother me again</button>
+      <button type="button" id="button_no">No, take me to the options screen</button>
     </p>
-    <a href="#" onclick="document.location.reload(); return false;">Autodetect again</a>
-    <!--<a href="#" onclick="document.location.reload(); return false;">Reload</a>-->
+    <p>
+      <button type="button" id="button_autodetect">Autodetect again</button>
+    </p>
   </body>
 </html>
