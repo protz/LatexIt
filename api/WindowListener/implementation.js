@@ -412,8 +412,28 @@ var WindowListener = class extends ExtensionCommon.ExtensionAPI {
       },
     };
 
+    this.onNotifyObserver = {
+      observe: function (aSubject, aTopic, aData) {
+        if (self.observerTracker && aData == self.extension.id) {
+          self.observerTracker(aSubject.wrappedJSObject);
+        }
+      }
+    }    
     return {
       WindowListener: {
+
+        onNotify: new ExtensionCommon.EventManager({
+          context,
+          name: "WindowListener.onNotify",
+          register: fire => {            
+            Services.obs.addObserver(self.onNotifyObserver, "WindowListenerMessageObserver", false);
+            self.observerTracker = fire.sync;
+            return () => {
+              Services.obs.removeObserver(self.onNotifyObserver, "WindowListenerMessageObserver", false);
+              self.observerTracker = null;
+            };
+          },
+        }).api(),
 
         async waitForMasterPassword() {
           // Wait until master password has been entered (if needed)

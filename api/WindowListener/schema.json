@@ -1,6 +1,19 @@
 [
   {
-    "namespace": "WindowListener",
+    "namespace": "WindowListener",    
+    "events": [
+      {
+        "name": "onNotify",
+        "type": "function",
+        "description": "Fired when a new notification for 'WindowListenerMessageObserver' has been received with aData matching the ID of this extension.",
+        "parameters": [
+          {
+            "name": "info",
+            "type": "any" 
+          }
+        ]
+      }
+    ],
     "functions": [
       {
         "name": "registerDefaultPrefs",
