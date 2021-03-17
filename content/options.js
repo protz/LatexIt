@@ -1,3 +1,5 @@
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 function pick_file(pref, title) {
   var nsIFilePicker = Components.interfaces.nsIFilePicker;
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -36,8 +38,11 @@ function add_links(aDoc) {
 }
 
 function open_autodetect() {
-  window.openDialog('chrome://tblatex/content/firstrun.html', '',
-            'all,chrome,dialog=no,status,toolbar,width=640,height=480', add_links);
+  // Notify WebExtension Background to open the first run tab.
+  Services.obs.notifyObservers(
+    {command: "openFirstRunTab"},
+    "WindowListenerMessageObserver",
+    "tblatex@xulforum.org");
 }
 
 window.addEventListener("load", function (event) {
