@@ -41,7 +41,7 @@ function open_autodetect() {
   // Notify WebExtension Background to open the first run tab.
   Services.obs.notifyObservers(
     {command: "openFirstRunTab"},
-    "WindowListenerMessageObserver",
+    "WindowListenerBackgroundObserver",
     "tblatex@xulforum.org");
 }
 

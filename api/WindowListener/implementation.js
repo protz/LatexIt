@@ -2,6 +2,25 @@
  * This file is provided by the addon-developer-support repository at
  * https://github.com/thundernest/addon-developer-support
  *
+ * Version: 1.40
+ * - Add onNotify event, which can be registered in the background page, to send
+ *   commands from privileged  code:
+ *
+ *   // in background
+ *   messenger.WindowListener.onNotify.addListener((info) => {
+ *    switch (info.command) {
+ *     case "doSomething":
+ *      soSomething();
+ *      break;
+ *    }
+ *   });
+ *
+ *   // in privileged code
+ *   Services.obs.notifyObservers(
+ *    {command: "doSomething"},
+ *    "WindowListenerBackgroundObserver",
+ *    <add-on-id>);
+ *
  * Version: 1.39
  * - fix for 68
  *
@@ -426,10 +445,10 @@ var WindowListener = class extends ExtensionCommon.ExtensionAPI {
           context,
           name: "WindowListener.onNotify",
           register: fire => {            
-            Services.obs.addObserver(self.onNotifyObserver, "WindowListenerMessageObserver", false);
+            Services.obs.addObserver(self.onNotifyObserver, "WindowListenerBackgroundObserver", false);
             self.observerTracker = fire.sync;
             return () => {
-              Services.obs.removeObserver(self.onNotifyObserver, "WindowListenerMessageObserver", false);
+              Services.obs.removeObserver(self.onNotifyObserver, "WindowListenerBackgroundObserver", false);
               self.observerTracker = null;
             };
           },
