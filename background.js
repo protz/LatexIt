@@ -40,7 +40,7 @@ messenger.runtime.onMessage.addListener((data, sender) => {
   
   // Check if the first run tab has to be shown.
   let firstrun = await messenger.LegacyPrefs.getPref("tblatex.firstrun");
-  if (firstrun != 4) {
+  if (firstrun != 3) {
     messenger.tabs.create({
       url: "content/firstrun.html"
     });
