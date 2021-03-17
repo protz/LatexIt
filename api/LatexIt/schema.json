@@ -1,0 +1,37 @@
+[
+  {
+    "namespace": "LatexIt",
+    "functions": [
+      {
+        "name": "file_exists",
+        "type": "function",
+        "async": true,
+        "description": "check if local file exists",
+        "parameters": [
+          {
+            "name": "aPath",
+            "type": "string",
+            "description": "aPath"
+          }
+        ]
+      },
+      {
+        "name": "search_in_path",
+        "type": "function",
+        "async": true,
+        "description": "search_in_path",
+        "parameters": [
+          {
+            "name": "isWindows",
+            "type": "boolean"
+          },
+          {
+            "name": "extraEnvPathSuggestions",
+            "type": "array",
+            "items": { "type": "string" }
+          }          
+        ]
+      }
+    ]
+  }
+]
