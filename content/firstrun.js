@@ -1,11 +1,23 @@
 async function on_load() {
+  let extraEnvPathSuggestions = [];
   let plattform = await messenger.runtime.getPlatformInfo();
   let isWindows = (plattform.os == "win");
+  let isOSX = (plattform.os == "mac");
+  
   if (isWindows) {
     document.getElementById("div_win32").style.display = "block";
   }
   
-  let found = await messenger.LatexIt.search_in_path(isWindows);
+  if (isOSX) {
+    extraEnvPathSuggestions = [
+      "/usr/local/bin",
+      "/usr/texbin",
+      "/usr/X11/bin",
+      "/usr/local/texlive/2016/bin/x86_64-darwin/"
+    ];
+  }  
+  
+  let found = await messenger.LatexIt.search_in_path(isWindows, extraEnvPathSuggestions);
   if (found.latex) {
     await messenger.LegacyPrefs.setPref("tblatex.latex_path", found.latex);
   }

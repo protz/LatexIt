@@ -24,7 +24,12 @@
           {
             "name": "isWindows",
             "type": "boolean"
-          }
+          },
+          {
+            "name": "extraEnvPathSuggestions",
+            "type": "array",
+            "items": { "type": "string" }
+          }          
         ]
       }
     ]

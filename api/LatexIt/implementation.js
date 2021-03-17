@@ -25,12 +25,27 @@ var LatexIt = class extends ExtensionCommon.ExtensionAPI {
           return file.exists();
         },
         
-        search_in_path: async function(isWindows) {
+        search_in_path: async function(isWindows, extraEnvPathSuggestions) {
           var env = Cc["@mozilla.org/process/environment;1"].createInstance(Ci.nsIEnvironment);
           var sep = isWindows ? ";" : ":";
           var ext = isWindows ? ".exe" : "";
           var dirs = env.get("PATH").split(sep);
 
+          // add suggestions to path
+          let pathMod = false;
+          for (let i = 0; i < extraEnvPathSuggestions.length; ++i) {
+            if (dirs.indexOf(suggestions[i]) < 0) {
+              dirs.push(suggestions[i]);
+              pathMod = true;
+            }
+          }
+          // Do we really have to CHANGE the path? We added the suggestions
+          // for the search and store the full path found.
+          if (pathMod) {
+            env.set("PATH", dirs.join(sep));
+            dump("New path: " + env.get("PATH") + "\n");
+          }          
+          
           let found = {};
           
           for (var i = 0; i < dirs.length; ++i) {
