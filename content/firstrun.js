@@ -41,10 +41,6 @@ async function on_load() {
     document.getElementById("dvipng_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
     document.getElementById("button_yes").setAttribute("disabled", "disabled");
   }
-
-  if (window.arguments && window.arguments[0]) {
-    window.arguments[0](document);
-  }
 }
 
 async function on_yes() {

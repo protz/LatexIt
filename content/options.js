@@ -30,30 +30,6 @@ function pick_file(pref, title) {
   });
 }
 
-function add_links(aDoc) {
-  if (!window.Application) //TB 2.x will open this properly in an external browser
-    return;
-
-  var links = aDoc.getElementsByClassName("external");
-  for (var i = 0; i < links.length; ++i) (function (i) {
-    dump("link "+i+"\n");
-    var uri = links[i].getAttribute("href");
-    links[i].addEventListener("click",
-      function link_listener (event) {
-        if (!(uri instanceof Components.interfaces.nsIURI))
-          uri = Components.classes["@mozilla.org/network/io-service;1"]
-            .getService(Components.interfaces.nsIIOService)
-            .newURI(uri, null, null);
-
-        Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-          .getService(Components.interfaces.nsIExternalProtocolService)
-          .loadURI(uri);
-
-        event.preventDefault();
-      }, true);
-  })(i);
-}
-
 function open_autodetect() {
   // Notify WebExtension Background to open the first run tab.
   Services.obs.notifyObservers(
