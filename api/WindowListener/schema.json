@@ -3,18 +3,31 @@
     "namespace": "WindowListener",    
     "events": [
       {
-        "name": "onNotify",
+        "name": "onNotifyBackground",
         "type": "function",
-        "description": "Fired when a new notification for 'WindowListenerMessageObserver' has been received with aData matching the ID of this extension.",
+        "description": "Fired when a new notification for 'WindowListenerNotifyBackgroundObserver' has been received with aData matching the ID of this extension. Only one listener is supported.",
         "parameters": [
           {
             "name": "info",
-            "type": "any" 
+            "type": "any",
+            "description": "Info object passed into notifyObserver as aSubject and forwarded to the listener. Restrictions of the structured clone algorythm apply."
           }
         ]
       }
     ],
     "functions": [
+      {
+        "name": "notifyLegacy",
+        "type": "function",
+        "description": "Notifies the 'WindowListenerNotifyLegacyObserver' and passes and uses the provided info object as aSubject for notifyObserver and the add-on ID as aData.",
+        "parameters": [
+          {
+            "name": "info",
+            "type": "any",
+            "description": "Info object forwarded to the observer. The value will be in aSubject.wrappedJSObject. Restrictions of the structured clone algorythm apply."
+          }
+        ]
+      },
       {
         "name": "registerDefaultPrefs",
         "type": "function",

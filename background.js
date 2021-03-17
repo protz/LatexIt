@@ -20,10 +20,13 @@ messenger.runtime.onMessage.addListener((info, sender) => {
 /*
  * Register a onNotify listener to catch messages send from privileged scope.
 */
-messenger.WindowListener.onNotify.addListener((info) => {
+messenger.WindowListener.onNotifyBackground.addListener((info) => {
   switch (info.command) {
     case "openFirstRunTab":
       openFirstRunTab();
+      // I used LatexIt to implement and test these functions. Left it in as
+      // a working example for ping-pong communication.
+      messenger.WindowListener.notifyLegacy(info);
       break;
   }
 });

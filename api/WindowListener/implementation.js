@@ -2,12 +2,35 @@
  * This file is provided by the addon-developer-support repository at
  * https://github.com/thundernest/addon-developer-support
  *
- * Version: 1.40
- * - Add onNotify event, which can be registered in the background page, to send
- *   commands from privileged  code:
+ * Version: 1.42
+ * - Add notifyLegacy() function to send data to privileged code. Together with the
+ *   onNotifyBackground event a ping-pong-style communication is possible which can 
+ *   later be re-created with runtime.onMessage/sendMessage. Example:
+ *
+ *   //in background
+ *   messenger.WindowListener.notifyLegacy({data: "voilá"});
+ *
+ *   // in privileged code
+ *   let onNotifyLegacyObserver = {
+ *    observe: function (aSubject, aTopic, aData) {
+ *     if (aData != <add-on-id>)
+ *      return;
+ *     console.log(aSubject.wrappedJSObject);
+ *    }
+ *   }
+ *   window.addEventListener("load", function (event) {
+ *     Services.obs.addObserver(onNotifyLegacyObserver, "WindowListenerNotifyLegacyObserver", false);
+ *     window.addEventListener("unload", function (event) {
+ *       Services.obs.removeObserver(onNotifyLegacyObserver, "WindowListenerNotifyLegacyObserver");
+ *     }, false);
+ *   }, false);
+ *
+ * Version: 1.41
+ * - Add onNotifyBackground event, which can be registered in the background page, to receive
+ *   commands from privileged code. Example:
  *
  *   // in background
- *   messenger.WindowListener.onNotify.addListener((info) => {
+ *   messenger.WindowListener.onNotifyBackground.addListener((info) => {
  *    switch (info.command) {
  *     case "doSomething":
  *      soSomething();
@@ -18,7 +41,7 @@
  *   // in privileged code
  *   Services.obs.notifyObservers(
  *    {command: "doSomething"},
- *    "WindowListenerBackgroundObserver",
+ *    "WindowListenerNotifyBackgroundObserver",
  *    <add-on-id>);
  *
  * Version: 1.39
@@ -431,7 +454,7 @@ var WindowListener = class extends ExtensionCommon.ExtensionAPI {
       },
     };
 
-    this.onNotifyObserver = {
+    this.onNotifyBackgroundObserver = {
       observe: function (aSubject, aTopic, aData) {
         if (self.observerTracker && aData == self.extension.id) {
           self.observerTracker(aSubject.wrappedJSObject);
@@ -441,14 +464,22 @@ var WindowListener = class extends ExtensionCommon.ExtensionAPI {
     return {
       WindowListener: {
 
-        onNotify: new ExtensionCommon.EventManager({
+        notifyLegacy(info) {
+          Services.obs.notifyObservers(
+            info,
+            "WindowListenerNotifyLegacyObserver",
+            self.extension.id
+          );
+        },
+        
+        onNotifyBackground: new ExtensionCommon.EventManager({
           context,
-          name: "WindowListener.onNotify",
+          name: "WindowListener.onNotifyBackground",
           register: fire => {            
-            Services.obs.addObserver(self.onNotifyObserver, "WindowListenerBackgroundObserver", false);
+            Services.obs.addObserver(self.onNotifyBackgroundObserver, "WindowListenerNotifyBackgroundObserver", false);
             self.observerTracker = fire.sync;
             return () => {
-              Services.obs.removeObserver(self.onNotifyObserver, "WindowListenerBackgroundObserver", false);
+              Services.obs.removeObserver(self.onNotifyBackgroundObserver, "WindowListenerNotifyBackgroundObserver", false);
               self.observerTracker = null;
             };
           },
