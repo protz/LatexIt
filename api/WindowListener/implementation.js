@@ -2,47 +2,43 @@
  * This file is provided by the addon-developer-support repository at
  * https://github.com/thundernest/addon-developer-support
  *
- * Version: 1.42
- * - Add notifyLegacy() function to send data to privileged code. Together with the
- *   onNotifyBackground event a ping-pong-style communication is possible which can 
- *   later be re-created with runtime.onMessage/sendMessage. Example:
+ * Version: 1.44
+ * - Add notifyExperiment() function to send data to privileged scripts inside
+ *   an Experiment. The privileged script must include notifyTools.js from the
+ *   addon-developer-support repository.
  *
- *   //in background
- *   messenger.WindowListener.notifyLegacy({data: "voilá"});
+ *   // In a WebExtension background script:
+ *   // Note: Restrictions of the structured clone algorythm apply to the send data.
+ *   messenger.WindowListener.notifyExperiment({data: "voilá"});
  *
- *   // in privileged code
- *   let onNotifyLegacyObserver = {
- *    observe: function (aSubject, aTopic, aData) {
- *     if (aData != <add-on-id>)
- *      return;
- *     console.log(aSubject.wrappedJSObject);
- *    }
- *   }
- *   window.addEventListener("load", function (event) {
- *     Services.obs.addObserver(onNotifyLegacyObserver, "WindowListenerNotifyLegacyObserver", false);
- *     window.addEventListener("unload", function (event) {
- *       Services.obs.removeObserver(onNotifyLegacyObserver, "WindowListenerNotifyLegacyObserver");
- *     }, false);
- *   }, false);
+ *   // In a privileged script inside an Experiment:
+ *   let Listerner1 = notifyTools.registerListener((rv) => console.log("listener #1", rv));
+ *   let Listerner2 = notifyTools.registerListener((rv) => console.log("listener #2", rv));
+ *   let Listerner3 = notifyTools.registerListener((rv) => console.log("listener #3", rv));
+ *   notifyTools.removeListener(Listerner2);
  *
- * Version: 1.41
- * - Add onNotifyBackground event, which can be registered in the background page, to receive
- *   commands from privileged code. Example:
- *
- *   // in background
- *   messenger.WindowListener.onNotifyBackground.addListener((info) => {
+ * - Add onNotifyBackground event, which can be registered in the background page,
+ *   to receive data from privileged scripts inside an Experiment. The privileged
+ *   script must include notifyTools.js from the addon-developer-support repository.
+  *
+ *   // In a WebExtension background script:
+ *   messenger.WindowListener.onNotifyBackground.addListener(async (info) => {
  *    switch (info.command) {
  *     case "doSomething":
- *      soSomething();
+ *      let rv = await doSomething(info.data);
+ *      return {
+ *       result: rv, 
+ *       data: [1,2,3]
+ *      };
  *      break;
  *    }
  *   });
  *
- *   // in privileged code
- *   Services.obs.notifyObservers(
- *    {command: "doSomething"},
- *    "WindowListenerNotifyBackgroundObserver",
- *    <add-on-id>);
+ *   // In a privileged script inside an Experiment:
+ *   let rv = await notifyTools.notifyBackground({command: "doSomething", data: [1,2,3]});
+ *   // rv will be whatever has been returned by the background script.
+ *   // Note: Restrictions of the structured clone algorythm apply to
+ *   // the send and recieved data.
  *
  * Version: 1.39
  * - fix for 68
@@ -455,19 +451,29 @@ var WindowListener = class extends ExtensionCommon.ExtensionAPI {
     };
 
     this.onNotifyBackgroundObserver = {
-      observe: function (aSubject, aTopic, aData) {
+      observe: async function (aSubject, aTopic, aData) {
         if (self.observerTracker && aData == self.extension.id) {
-          self.observerTracker(aSubject.wrappedJSObject);
+          let payload = aSubject.wrappedJSObject;
+          // This is called from the WL observer.js and therefore it should have a resolve
+          // payload, but better check.
+          if (payload.resolve) {
+            let rv = await self.observerTracker(payload.data);
+            payload.resolve(rv);
+          } else {
+            self.observerTracker(payload.data);
+          }
         }
       }
     }    
     return {
       WindowListener: {
 
-        notifyLegacy(info) {
+        notifyExperiment(data) {
           Services.obs.notifyObservers(
-            info,
-            "WindowListenerNotifyLegacyObserver",
+            // Stuff data in an array so simple strings can be used as payload
+            // without the observerService complaining.
+            [data],
+            "WindowListenerNotifyExperimentObserver",
             self.extension.id
           );
         },
