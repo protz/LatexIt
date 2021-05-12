@@ -15,12 +15,17 @@
     <hbox align="baseline">
       <label control="latex_textbox" value="Path to latex executable:" />
       <html:input preference="tblatex.latex_path" id="latex_textbox" />
-      <button label="Browse..." oncommand="pick_file('latex_textbox', 'latex');" />
+      <button label="Browse..." oncommand="pick_file('latex_textbox', 'latex binary');" />
     </hbox>
     <hbox align="baseline">
       <label control="dvipng_textbox" value="Path to dvipng executable:" />
       <html:input preference="tblatex.dvipng_path" id="dvipng_textbox" />
-      <button label="Browse..." oncommand="pick_file('dvipng_textbox', 'dvipng');" />
+      <button label="Browse..." oncommand="pick_file('dvipng_textbox', 'dvipng binary');" />
+    </hbox>
+    <hbox align="baseline" class="windows_only" style="display: none">
+      <label control="temp_textbox" value="Path to temporary directory:" />
+      <html:input preference="tblatex.windows_temp_path" id="temp_textbox" />
+      <button label="Browse..." oncommand="pick_file('temp_textbox', 'temporary directory');" />
     </hbox>
     <label style="text-decoration: underline; color: navy; cursor: pointer" value="Open the autodetection dialog"
       onclick="open_autodetect();" />

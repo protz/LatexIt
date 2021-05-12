@@ -27,7 +27,7 @@
       "autodetect again" at the bottom of the page once you're done with the
       setup.
     </p>
-    <div id="div_win32" style="display: none;">
+    <div class="windows_only" style="display: none">
       <h2>Attention!</h2>
       <p>
       It appears you are running Microsoft Windows.
@@ -54,6 +54,19 @@
       <li>LaTeX: <span id="latex_path"></span>&nbsp;<img id="latex_icon" src="exclamation.png" /></li>
       <li>dvipng: <span id="dvipng_path"></span>&nbsp;<img id="dvipng_icon" src="exclamation.png" /></li>
     </ul>
+    <div class="windows_only" style="display: none">
+      <p>
+        Temporary directory:
+      </p>
+      <ul>
+        <li>
+          <span id="temp_path"></span>&nbsp;<img id="temp_icon" src="exclamation.png" />
+          <div style="margin-top: 0.5em">
+            If this path contains <i>short filenames</i> (<i>SFN</i>, also called <i>8.3 filenames</i>) and LaTeX compilation fails, try setting it manually using only <i>long filenames</i> (<i>LFN</i>). MiKTeX does no longer support <i>short filenames</i>.
+          </div>
+        </li>
+      </ul>
+    </div>
     <span id="autodetect_report"></span>
     <p><strong><u>Are these settings correct?</u></strong></p>
     <p>

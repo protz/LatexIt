@@ -5,7 +5,8 @@ async function on_load() {
   let isOSX = (plattform.os == "mac");
   
   if (isWindows) {
-    document.getElementById("div_win32").style.display = "block";
+    document.querySelectorAll(".windows_only")
+      .forEach(e => e.style.display = "block");
   }
   
   if (isOSX) {
@@ -40,6 +41,21 @@ async function on_load() {
   } else {
     document.getElementById("dvipng_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
     document.getElementById("button_yes").setAttribute("disabled", "disabled");
+  }
+
+  if (isWindows) {
+    var temp_path = await messenger.LegacyPrefs.getPref("tblatex.windows_temp_path");
+    if (temp_path.length == 0 || !(await messenger.LatexIt.file_exists(temp_path))) {
+      temp_path = found.temp || "";
+      await messenger.LegacyPrefs.setPref("tblatex.windows_temp_path", temp_path);
+    }
+    if (temp_path) {
+      document.getElementById("temp_path").appendChild(document.createTextNode(temp_path));
+      document.getElementById("temp_icon").src = "accept.png";
+    } else {
+      document.getElementById("temp_path").innerHTML = "<span style='color: #EB887C; font-weight: bold;'>Not Found!</span>";
+      document.getElementById("button_yes").setAttribute("disabled", "disabled");
+    }
   }
 }
 

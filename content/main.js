@@ -204,14 +204,15 @@ var tblatex = {
                   .getService(Components.interfaces.nsIEnvironment);
         var shell_bin = init_file(env.get("COMSPEC"));
         var shell_option = "/C";
+        var temp_dir = prefs.getCharPref("windows_temp_path");
       } else {
         var shell_bin = init_file("/bin/sh");
         var shell_option = "-c";
+        var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
+          getService(Components.interfaces.nsIProperties).
+          get("TmpD", Components.interfaces.nsIFile).path;
       }
 
-      var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
-        getService(Components.interfaces.nsIProperties).
-        get("TmpD", Components.interfaces.nsIFile).path;
       temp_file = init_file(temp_dir);
       temp_file.append("tblatex-"+g_suffix+".png");
       while (temp_file.exists()) {

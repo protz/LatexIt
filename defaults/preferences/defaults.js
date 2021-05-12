@@ -1,5 +1,6 @@
 pref("tblatex.latex_path", "");
 pref("tblatex.dvipng_path", "");
+pref("tblatex.windows_temp_path", "");
 pref("tblatex.autodpi", true);
 pref("tblatex.font_px", 16);
 pref("tblatex.log", true);

@@ -72,6 +72,14 @@ var LatexIt = class extends ExtensionCommon.ExtensionAPI {
             }
           }
           
+          if (isWindows) {
+            var temp_dir = Cc["@mozilla.org/file/directory_service;1"].
+              getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile).path;
+            if (temp_dir.length > 0 && init_file(temp_dir).exists()) {
+              found.temp = temp_dir;
+            }
+          }
+
           return found;
         }
 

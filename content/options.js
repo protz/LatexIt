@@ -20,7 +20,7 @@ window.addEventListener("load", function (event) {
 function pick_file(textboxId, title) {
   var nsIFilePicker = Components.interfaces.nsIFilePicker;
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-  fp.init(window, "Select the "+title+" binary", nsIFilePicker.modeOpen);
+  fp.init(window, "Select the "+title, nsIFilePicker.modeOpen);
 
   fp.open(rv => {
     if( rv != nsIFilePicker.returnOK) {
@@ -38,10 +38,20 @@ function open_autodetect() {
     "tblatex@xulforum.org");
 }
 
-window.addEventListener("load", function (event) {
-  on_log();
-}, false);
-
 function on_log() {
   document.getElementById("debug_checkbox").disabled = !document.getElementById("log_checkbox").checked;
 }
+
+async function on_load() {
+
+  var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
+
+  if (isWindows) {
+    document.querySelectorAll(".windows_only")
+      .forEach(e => e.style.display = "block");
+  }
+
+  on_log();
+}
+
+window.addEventListener("load", on_load, false);
