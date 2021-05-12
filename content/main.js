@@ -147,6 +147,7 @@ var tblatex = {
       var init_process = function(path) {
         var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
         process.init(path);
+        process.startHidden = true;
         return process;
       }
       var sanitize_arg = function(arg) {
