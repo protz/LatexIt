@@ -26,7 +26,7 @@ async function on_load() {
   }
 
   var latex_path = await messenger.LegacyPrefs.getPref("tblatex.latex_path");
-  if (latex_path.length > 0 && messenger.LatexIt.file_exists(latex_path)) {
+  if (latex_path.length > 0 && await messenger.LatexIt.file_exists(latex_path)) {
     document.getElementById("latex_path").appendChild(document.createTextNode(latex_path));
     document.getElementById("latex_icon").src = "accept.png";
   } else {
@@ -34,7 +34,7 @@ async function on_load() {
     document.getElementById("button_yes").setAttribute("disabled", "disabled");
   }
   var dvipng_path =  await messenger.LegacyPrefs.getPref("tblatex.dvipng_path");
-  if (dvipng_path.length > 0 && messenger.LatexIt.file_exists(dvipng_path)) {
+  if (dvipng_path.length > 0 && await messenger.LatexIt.file_exists(dvipng_path)) {
     document.getElementById("dvipng_path").appendChild(document.createTextNode(dvipng_path));
     document.getElementById("dvipng_icon").src = "accept.png";
   } else {
