@@ -147,6 +147,7 @@ var tblatex = {
       var init_process = function(path) {
         var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
         process.init(path);
+        process.startHidden = true;
         return process;
       }
       var sanitize_arg = function(arg) {
@@ -367,14 +368,6 @@ var tblatex = {
       if (debug) {
         log += ("*** Status is "+st+"\n");
         log += ("*** Path is "+png_file.path+"\n");
-      }
-
-      // We must leave some time for the window manager to actually get rid of the
-      // old terminal windows that pop up on Windows when launching latex.
-      if (isWindows) {
-        setTimeout(function () {
-          window.focus();
-        }, 500);
       }
 
       // Read the depth (distance between base of image and baseline) from the depth file
