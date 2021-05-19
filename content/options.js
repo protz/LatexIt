@@ -17,7 +17,7 @@ window.addEventListener("load", function (event) {
   }, false);
 }, false);
 
-function pick_file(pref, title) {
+function pick_file(textboxId, title) {
   var nsIFilePicker = Components.interfaces.nsIFilePicker;
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   fp.init(window, "Select the "+title+" binary", nsIFilePicker.modeOpen);
@@ -26,7 +26,7 @@ function pick_file(pref, title) {
     if( rv != nsIFilePicker.returnOK) {
       return;
     }
-    pref.value = fp.file.path;
+    document.getElementById(textboxId).value = fp.file.path;
   });
 }
 
