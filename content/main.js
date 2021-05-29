@@ -144,21 +144,7 @@ var tblatex = {
           };
         }
       }
-      var init_process = function(path) {
-        var process = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
-        process.init(path);
-        return process;
-      }
-      var sanitize_arg = function(arg) {
-        // on Windows the nsIProcess function will add quotes around all arguments with spaces for us
-        if (isWindows)
-          return arg;
-        else if (arg.indexOf(" ") < 0)
-          return arg;
-        else
-          return "\""+arg+"\"";
-      }
-      
+
       var latex_bin = init_file(prefs.getCharPref("latex_path"));
       if (!latex_bin.exists()) {
         alert("Latex It! Error\n\nThe 'latex' executable cannot be found.\n\nSolution:\n\tSet the right path in the add-on's options dialog (☰>Add-ons>Latex It!)");
@@ -198,15 +184,46 @@ var tblatex = {
       // script file).
       // Here we get the shell binary and the command line option to call an
       // external program.
-      if (isWindows) {
-        var env = Components.classes["@mozilla.org/process/environment;1"]
-                  .getService(Components.interfaces.nsIEnvironment);
-        var shell_bin = init_file(env.get("COMSPEC"));
-        var shell_option = "/C";
-      } else {
-        var shell_bin = init_file("/bin/sh");
-        var shell_option = "-c";
-      }
+      //
+      // On all platforms, nsIProcess will escape the arguments, that is:
+      // - Escape backslashes (\) and double quotes (") with backslashes (\).
+      // - Wrap the argument in double quotes (") if it contains white-space.
+      // Unfortunately this produces arguments that are not compatible with
+      // Windows CMD. Work around this by adding echo statements in a cunning
+      // way.
+      const runShellCmdInDir = (dir, args) => {
+        const addQuotesIfWhitespace = (arg) => {
+          return arg.indexOf(" ") < 0 ? arg : "\"" + arg + "\"";
+        };
+        let dirQ = addQuotesIfWhitespace(dir);
+        let shellBin;
+        let shellArgs;
+        if (isWindows) {
+          let env = Cc["@mozilla.org/process/environment;1"]
+              .getService(Ci.nsIEnvironment);
+          shellBin = init_file(env.get("COMSPEC"));
+          // /c "echo " \" && cd /d <dir> && <args> && echo \"
+          shellArgs = ["/c", "echo ", "\"", "&&", "cd", "/d", dir, "&&",
+              ...args, "&&", "echo", "\""];
+        } else {
+          shellBin = init_file("/bin/sh");
+          let argsQ = args.map(addQuotesIfWhitespace).join(" ");
+          // -c "cd <dir> && <args>"
+          shellArgs = ["-c", "cd " + dirQ + " && " + argsQ];
+        }
+        let shellProcess = Cc["@mozilla.org/process/util;1"]
+            .createInstance(Ci.nsIProcess);
+        shellProcess.init(shellBin);
+        shellProcess.run(true, shellArgs, shellArgs.length);
+        let shellPathQ = addQuotesIfWhitespace(shellBin.path);
+        let argsQ = args.map(addQuotesIfWhitespace).join(" ");
+        let cmd = isWindows ?
+            shellPathQ + " /c \"cd /d " + dirQ + " && " + argsQ + "\"" :
+            shellPathQ + " -c 'cd " + dirQ + " && " + argsQ + "'";
+        log += "I ran (exit code " + shellProcess.exitValue + "):\n"
+            + cmd + "\n";
+        return shellProcess.exitValue;
+      };
 
       var temp_dir = Components.classes["@mozilla.org/file/directory_service;1"].
         getService(Components.interfaces.nsIProperties).
@@ -241,17 +258,15 @@ var tblatex = {
       converter.writeString(latex_expr);
       converter.close(); // this closes foStream
 
+      let exitValue = runShellCmdInDir(temp_dir, [
+        latex_bin.path,
+        "-interaction=batchmode",
+        temp_file_noext + ".tex"
+      ]);
 
-      var latex_process = init_process(latex_bin);
-      var latex_args = ["-output-directory="+temp_dir, "-interaction=batchmode", temp_file.path];
-      // This adds quotes around all arguments that contains spaces but only on Unix (on Windows the nsIProcess function will add quotes around all arguments with spaces for us)
-      latex_args = latex_args.map(sanitize_arg);
-      latex_process.run(true, latex_args, latex_args.length);
-      if (debug)
-        log += "I ran "+sanitize_arg(latex_bin.path)+" "+latex_args.join(" ")+" error code "+latex_process.exitValue+"\n";
-      if (latex_process.exitValue) {
+      if (exitValue) {
         st = 1;
-        log += "LaTeX process returned "+latex_process.exitValue+"\nProceeding anyway...\n";
+        log += "LaTeX process returned " + exitValue + "\nProceeding anyway...\n";
       }
 
       ["log", "aux"].forEach(function (ext) {
@@ -342,25 +357,24 @@ var tblatex = {
       if (debug)
         log += "*** Calculated resolution is "+dpi+" dpi\n";
 
-      var shell_process = init_process(shell_bin);
-      var dvipng_args = [dvipng_bin.path, "--depth", "-T", "tight", "-z", "3", "-bg", "Transparent", "-D", dpi.toString(), "-fg", font_color, "-o", png_file.path, dvi_file.path, ">", depth_file.path];
-      // This adds quotes around all arguments that contains spaces but only on Unix (on Windows the nsIProcess function will add quotes around all arguments with spaces for us)
-      dvipng_args = dvipng_args.map(sanitize_arg);
-      if (isWindows) {
-        // The additional echo commands are needed on Windows in order to remove the unwanded backslaches and quotes added by the nsIProcess function ( shell_process.run )
-        var prefix_args = ["echo ", "\"", "&"];
-        var suffix_args = ["&", "echo", "\""];
-        var process_args = [shell_option].concat(prefix_args, dvipng_args, suffix_args);
-      } else {
-        var process_args = [shell_option, dvipng_args.join(" ")];
-      }
-      shell_process.run(true, process_args, process_args.length);
+      exitValue = runShellCmdInDir(temp_dir, [
+        dvipng_bin.path,
+        "--depth",
+        "-D", dpi.toString(),
+        "-T", "tight",
+        "-fg", font_color,
+        "-bg", "Transparent",
+        "-z", "3",
+        "-o", temp_file_noext + ".png",
+        temp_file_noext + ".dvi",
+        ">", temp_file_noext + "-depth.txt"
+      ]);
+
       if (deletetempfiles) dvi_file.remove(false);
-      if (debug)
-        log += "I ran "+shell_bin.path+" -c '"+dvipng_args.join(" ")+"'\n";
-      if (shell_process.exitValue) {
-        // alert("Latex It! Error\n\nWhen converting the .dvi to a .png bitmap, 'dvipng' failed (Error code: "+shell_process.exitValue+")\n\nSolution:\n\tWe left the .dvi file there:\n\t\t"+temp_file.path+"\n\tTry to run 'dvipng --depth' on it by yourself...");
-        log += "!!! dvipng failed with error code "+shell_process.exitValue+". Aborting.\n";
+
+      if (exitValue) {
+        // alert("Latex It! Error\n\nWhen converting the .dvi to a .png bitmap, 'dvipng' failed (Error code: "+exitValue+")\n\nSolution:\n\tWe left the .dvi file there:\n\t\t"+temp_file.path+"\n\tTry to run 'dvipng --depth' on it by yourself...");
+        log += "!!! dvipng failed with error code " + exitValue + ". Aborting.\n";
         return [2, "", 0, log];
       }
 
